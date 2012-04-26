@@ -1,0 +1,7 @@
+hardstatus alwayslastline "%{=b w}%-w%{+ r}%n %t%{+ w}%+w %= %{=b r} %{+ w }[ L: %l | %C%A @ %H ]"
+attrcolor b ".I"
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+defbce "on"
+vbell off
+maxwin 9
+term screen-256color-bce
