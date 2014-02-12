@@ -9,7 +9,7 @@ module FancyPutter
     end
   end
 
-  protected
+  private
 
   def wrapper(color_code, str)
     "\033[3#{color_code}m#{str}\033[0m"
@@ -28,31 +28,13 @@ module Installer
   end
 
   def install
-    files_in_dir(PATH+"/dot").each do |file|
-      dot_file = PATH+"/dot/#{file}"
-      target_file = "#{HOME}/.#{file}"
-      if File.exists?(dot_file)
-        if diff = `diff #{dot_file} #{target_file}` and !diff.empty?
-          puts red "  There was a conflict with: #{target_file}"
-          puts diff
-        else
-          puts green "  Nothing to change: #{target_file}"
-        end
-      else
-        %x(ln -s #{PATH}/dot/#{file} #{HOME}/.#{file})
-        puts "  linked #{HOME}/.#{file}"
-      end
-    end
-  end
-
-  def link_home_dir
     files = `find #{PATH}/home -type f`.split("\n")
     files.each do |file|
       target = "#{HOME}/#{convert_dot_path(file)}"
       if File.exists?(target)
         puts yellow "  Target file already exists: #{target}"
         if diff = `diff #{file} #{target}` and !diff.empty?
-          puts red "  There was a conflict with: #{target}"
+          puts red "  There was a conflict with:  #{target}"
           puts diff
         end
       else
@@ -84,10 +66,6 @@ namespace :test do
     include FancyPutter
     puts "Oooooh pretty"
     COLORS.each { |c| puts send(c.to_sym, c) }
-  end
-  task :link_home_dir do
-    include Installer
-    link_home_dir
   end
 end
 
