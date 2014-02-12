@@ -267,7 +267,7 @@ function! OpenURL()
   else
 	  echo "No URI found in line."
   endif
-endfunction
+endfunctions
 
 function TabLeft()
    let tab_number = tabpagenr() - 1
