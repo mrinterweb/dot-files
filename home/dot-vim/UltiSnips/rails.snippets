@@ -1,0 +1,41 @@
+snippet it "rspec it block" b
+it "should ${1:do}" do
+	${0:pending}
+end
+endsnippet
+
+snippet desc "rspec describ block" b
+describe "$1" do
+	$0
+end
+endsnippet
+
+snippet bef "rspec before block" b
+before do
+	$0
+end
+endsnippet
+
+snippet let "rspec let with {} block" b
+let(:$1) { $0 }
+endsnippet
+
+snippet letdo "rspec let with do block" b
+let(:$1) do
+	$0
+end
+endsnippet
+
+snippet def "regular ruby def method"
+def $1
+	$0
+end
+endsnippet
+
+snippet rescue "wrap in rescue block"
+begin
+${VISUAL}
+rescue ${2:Exception} => e
+	$0
+end
+endsnippet
