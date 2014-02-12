@@ -227,6 +227,8 @@ colorscheme solarized
 let g:solarized_termcolors=256
 let g:solarized_contras="high"
 let g:solarized_bold=1
+" For some reason powerline fancy font stuff isn't working
+" let g:Powerline_symbols = 'fancy'
 
 " The following is a good way of setting fonts based on availability
 silent! set guifont=DejaVu\ Sans\ Mono\ 10
@@ -263,18 +265,6 @@ let g:fuf_splitPathMatching=1
 
 " Custom alias
 command! Closeall :bufdo bdelete
-
-" Open URL
-command -bar -nargs=1 OpenURL :!open <args>
-function! OpenURL()
-  let s:uri = matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*')
-  echo s:uri
-  if s:uri != ""
-	  exec "!open \"" . s:uri . "\""
-  else
-	  echo "No URI found in line."
-  endif
-endfunction
 
 function TabLeft()
    let tab_number = tabpagenr() - 1
