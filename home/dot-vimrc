@@ -19,6 +19,7 @@ call vundle#rc()
 
 Bundle 'gmarik/vundle'
 Bundle 'scrooloose/nerdtree'
+Bundle 'Lokaltog/vim-powerline'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'Tabular'
 Bundle 'tpope/vim-fugitive'
@@ -55,7 +56,6 @@ set incsearch		" do incremental searching
 set linespace=2
 set nobackup
 set noswapfile
-set relativenumber
 " set nohlsearch " Turns off search highlighting
 set hlsearch!
 nnoremap <F3> :NumbersToggle<CR>
@@ -190,6 +190,8 @@ nmap <F1> <Esc>
 
 
 inoremap jj <Esc>
+inoremap jk <Esc>
+inoremap kk <Esc>:w<CR>
 
 " Cool tab completion stuff
 set wildmenu
@@ -233,7 +235,11 @@ if &guifont != 'DejaVu Sans Mono 10'
 endif
 
 " Numbers
-set numberwidth=3
+" set number
+set relativenumber " used for showing relative line number
+set numberwidth=4
+autocmd InsertEnter * :set number
+autocmd InsertLeave * :set relativenumber
 
 " Snippets are activated by Shift+Tab
 let g:snippetsEmu_key = "<S-Tab>"
@@ -251,11 +257,12 @@ set smartcase
 " Tags
 let g:Tlist_Ctags_Cmd="ctags --exclude='*.js'"
 set tags=./tags;
+set tags+=gems.tags
 
 let g:fuf_splitPathMatching=1
 
 " Custom alias
-command Closeall :bufdo bdelete
+command! Closeall :bufdo bdelete
 
 " Open URL
 command -bar -nargs=1 OpenURL :!open <args>
@@ -305,8 +312,8 @@ imap <C-v> <ESC>"+pa
 if exists(":Tabularize")
   vmap <Leader>a, :Tabularize /,\zs<CR>
   vmap <Leader>a> :Tabularize /=><CR>
-  vmap <Leader>a :Tabularize /\zs
-  vmap <Leader>a= :Tabularize /=<CR>
+  vmap <Leader>a :Tabularize /\zs<CR>
+  vmap <Leader>a: :Tabularize /:\zs<CR>
 endif
 
 """ ----- Neocachecomplete -- START
