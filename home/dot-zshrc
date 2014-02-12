@@ -1,0 +1,74 @@
+# Path to your oh-my-zsh configuration.
+export ZSH=$HOME/.oh-my-zsh
+
+# Set to the name theme to load.
+# Look in ~/.oh-my-zsh/themes/
+export ZSH_THEME="robbyrussell"
+
+# Set to this to use case-sensitive completion
+# export CASE_SENSITIVE="true"
+
+# Comment this out to disable weekly auto-update checks
+# export DISABLE_AUTO_UPDATE="true"
+
+# Uncomment following line if you want to disable colors in ls
+# export DISABLE_LS_COLORS="true"
+
+# Uncomment following line if you want to disable autosetting terminal title.
+# export DISABLE_AUTO_TITLE="true"
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Example format: plugins=(rails git textmate ruby lighthouse)
+plugins=(git bundler history-substring-search)
+
+source $ZSH/oh-my-zsh.sh
+
+# Customize to your needs...
+
+[[ -s "/home/sean/.rvm/scripts/rvm" ]] && source "/home/sean/.rvm/scripts/rvm"
+
+extra_paths=(
+$HOME/scripts
+$HOME/.rvm/bin
+$HOME/Programs/android_sdk/platform-tools
+$HOME/Programs/android_sdk/tools
+$HOME/.npm-packages/bin
+/usr/local/heroku/bin
+)
+
+for ex_path in ${extra_paths[@]}
+do
+  if [[ -d $ex_path ]] ; then
+    export PATH=$PATH:$ex_path
+  fi
+done
+
+
+# --------- Oh My ZSH plugins
+plugins=(git)
+#
+# Enable vi key bindings
+bindkey -v
+# bindkey -e
+
+# ---------  Git Alias
+alias gs="git status"
+# alias gca="git commit -a"
+# alias gcp="git cherry-pick"
+# alias gco="git checkout"
+
+alias be="bundle exec"
+alias ack=ack-grep
+alias release="git tag -a -s"
+alias cdr="cd .. && cd -"
+
+export LESS="-i -n -R"
+export EDITOR=vim
+
+source $ZSH/plugins/history-substring-search/history-substring-search.zsh
+
+### Added by the Heroku Toolbelt
+
+if [[ -r ~/.envkeys ]]; then
+  source ~/.envkeys
+fi
