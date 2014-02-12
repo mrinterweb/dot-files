@@ -1,4 +1,5 @@
 require 'rake'
+require 'pry'
 
 module FancyPutter
 
@@ -32,7 +33,11 @@ module Installer
     files.each do |file|
       target = "#{HOME}/#{convert_dot_path(file)}"
       if File.exists?(target)
-        puts yellow "  Target file already exists: #{target}"
+        if File.symlink?(target)
+          puts green  "  Already linked:             #{target}"
+        else
+          puts yellow "  Target file already exists: #{target}"
+        end
         if diff = `diff #{file} #{target}` and !diff.empty?
           puts red "  There was a conflict with:  #{target}"
           puts diff
