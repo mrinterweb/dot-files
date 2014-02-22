@@ -26,10 +26,16 @@ before $1 do
 end
 endsnippet
 
-snippet expect "rspec expect block" !b
-expect { $1 }.to $2
+snippet expectb "rspec expect block" !b
+expect {
+  $1
+}.to $2
 endsnippet
 
 snippet expecteq "rspec expec().to eq()" !b
 expect($1).to eq($2)
+endsnippet
+
+snippet expect "rspec expec" !b
+expect($1).to $2
 endsnippet
