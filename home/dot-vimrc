@@ -56,11 +56,11 @@ set incsearch		" do incremental searching
 set linespace=2
 set nobackup
 set noswapfile
-" set nohlsearch " Turns off search highlighting
-set hlsearch!
-nnoremap <F3> :NumbersToggle<CR>
-nnoremap <F4> :set hlsearch!<CR>
+set nohlsearch " Turns off search highlighting
 
+nnoremap <F3> :set relativenumber!<CR>
+nnoremap <F4> :set hlsearch!<CR>
+nnoremap <F5> :set spell! spelllang=en_us<CR>
 
 " http://stackoverflow.com/questions/8597247/text-in-gvim-disappearing
 set guioptions=agim
