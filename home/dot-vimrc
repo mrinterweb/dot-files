@@ -39,6 +39,7 @@ Bundle 'dsawardekar/portkey'
 Bundle 'dsawardekar/ember.vim'
 Bundle 'mattn/emmet-vim'
 Bundle 'danro/rename.vim'
+Bundle 'Slava/vim-colors-tomorrow'
 " Bundle 'xolox/vim-reload'
 " Bundle 'heartsentwined/vim-emblem'
 
@@ -60,7 +61,8 @@ set nohlsearch " Turns off search highlighting
 
 nnoremap <F3> :set relativenumber!<CR>
 nnoremap <F4> :set hlsearch!<CR>
-nnoremap <F5> :set spell! spelllang=en_us<CR>
+" Pretty sure <F5> is reserved for Ctrl-P plugin
+nnoremap <F6> :set spell! spelllang=en_us<CR>
 
 " http://stackoverflow.com/questions/8597247/text-in-gvim-disappearing
 set guioptions=agim
@@ -220,7 +222,8 @@ set grepprg=git\ grep\ -n
 " colorscheme molokai
 " colorscheme desert
 set background=dark
-colorscheme solarized
+" colorscheme solarized
+colorscheme tomorrow
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
