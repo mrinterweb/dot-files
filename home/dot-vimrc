@@ -32,14 +32,17 @@ Bundle 'kien/ctrlp.vim.git'
 " Bundle 'Valloric/YouCompleteMe'
 Bundle 'Shougo/neocomplcache'
 Bundle 'vim-scripts/UltiSnips'
+" snippets previously packaged with ultisnips is now in vim-snippets
+Bundle 'honza/vim-snippets' 
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'mustache/vim-mustache-handlebars'
 Bundle 'scrooloose/syntastic'
-Bundle 'dsawardekar/portkey'
-Bundle 'dsawardekar/ember.vim'
+" Bundle 'dsawardekar/portkey'
+" Bundle 'dsawardekar/ember.vim'
 Bundle 'mattn/emmet-vim'
 Bundle 'danro/rename.vim'
 Bundle 'Slava/vim-colors-tomorrow'
+" Bundle 'jiangmiao/auto-pairs'
 " Bundle 'xolox/vim-reload'
 " Bundle 'heartsentwined/vim-emblem'
 
@@ -81,8 +84,12 @@ endif
 " Switch wrap off for everything
 set nowrap
 
+set noerrorbells 
+set novisualbell
+
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
+  autocmd! GUIEnter * set visualbell t_vb=
   " Enable file type detection.
   " Use the default filetype settings, so that mail gets 'tw' set to 72,
   " 'cindent' is on in C files, etc.
@@ -176,6 +183,8 @@ map <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
 " Command mode: Ctrl+P
 cmap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
 
+nnoremap <leader>. :CtrlPTag<cr>
+
 " Duplicate a selection
 " Visual mode: D
 vmap D y'>p
@@ -222,8 +231,8 @@ set grepprg=git\ grep\ -n
 " colorscheme molokai
 " colorscheme desert
 set background=dark
-" colorscheme solarized
-colorscheme tomorrow
+colorscheme solarized
+" colorscheme tomorrow
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
@@ -308,6 +317,10 @@ if exists(":Tabularize")
   vmap <Leader>a :Tabularize /\zs<CR>
   vmap <Leader>a: :Tabularize /:\zs<CR>
 endif
+
+let g:ctrlp_custom_ignore = {
+      \ 'dir': '\v\/(vendor|tmp|public|log|bin)'
+      \ }
 
 """ ----- Neocachecomplete -- START
 " " Disable AutoComplPop.
