@@ -1,6 +1,6 @@
 " SUPER IMPORTANT: this relies on Vundle being installed. Let me explain...
 " All dependencies are managed with Vundle as you can see lines below starting
-" with "Bundle *"
+" with "Plug *"
 " https://github.com/gmarik/Vundle.vim
 " To install Vundle:
 " mkdir -p ~/.vim/bundle
@@ -14,37 +14,38 @@ set nocompatible
 filetype off
 
 " set rtp+=~/.vim/vundle.git/
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+"set rtp+=~/.vim/bundle/vundle/
+"call vundle#rc()
+"
+call plug#begin('~/.vim/plugged')
 
-Bundle 'gmarik/vundle'
-Bundle 'scrooloose/nerdtree'
-Bundle 'Lokaltog/vim-powerline'
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'Tabular'
-Bundle 'tpope/vim-fugitive'
-Bundle 'vim-scripts/tComment'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-rails.git'
-" Bundle 'mrinterweb/vim-visual-surround.git'
-Bundle 'kien/ctrlp.vim.git'
-" Bundle 'Valloric/YouCompleteMe'
-Bundle 'Shougo/neocomplcache'
-Bundle 'vim-scripts/UltiSnips'
+" Plug 'gmarik/vundle'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'Lokaltog/vim-powerline'
+Plug 'altercation/vim-colors-solarized'
+Plug 'Tabular'
+Plug 'tpope/vim-fugitive'
+Plug 'vim-scripts/tComment'
+Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-rails'
+Plug 'kien/ctrlp.vim'
+Plug 'Shougo/neocomplcache'
+Plug 'vim-scripts/UltiSnips'
 " snippets previously packaged with ultisnips is now in vim-snippets
-Bundle 'honza/vim-snippets' 
-Bundle 'terryma/vim-multiple-cursors'
-Bundle 'mustache/vim-mustache-handlebars'
-Bundle 'scrooloose/syntastic'
-" Bundle 'dsawardekar/portkey'
-" Bundle 'dsawardekar/ember.vim'
-Bundle 'mattn/emmet-vim'
-Bundle 'danro/rename.vim'
-Bundle 'Slava/vim-colors-tomorrow'
-" Bundle 'jiangmiao/auto-pairs'
-" Bundle 'xolox/vim-reload'
-" Bundle 'heartsentwined/vim-emblem'
+Plug 'honza/vim-snippets' 
+Plug 'terryma/vim-multiple-cursors'
+Plug 'mustache/vim-mustache-handlebars'
+Plug 'scrooloose/syntastic'
+" Plug 'dsawardekar/ember.vim'
+" Plug 'mattn/emmet-vim'
+Plug 'danro/rename.vim'
+Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'flazz/vim-colorschemes'
+Plug 'tpope/vim-endwise'
+Plug 'rizzatti/dash.vim'
+" Plug 'mrinterweb/vim-visual-surround.git'
+call plug#end()
 
 filetype plugin indent on     " required!
 
@@ -84,7 +85,7 @@ endif
 " Switch wrap off for everything
 set nowrap
 
-set noerrorbells 
+set noerrorbells visualbell t_vb=
 set novisualbell
 
 " Only do this part when compiled with support for autocommands.
@@ -150,6 +151,7 @@ let mapleader = ","
 
 " Edit the README_FOR_APP (makes :R commands work)
 map <Leader>R :e doc/README_FOR_APP<CR>
+map <Leader>w :w<CR>
 
 " Leader shortcuts for Rails commands
 map <Leader>m :Rmodel 
@@ -184,6 +186,11 @@ map <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
 cmap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
 
 nnoremap <leader>. :CtrlPTag<cr>
+
+noremap <C-h> <C-w>h
+noremap <C-j> <C-w>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l 
 
 " Duplicate a selection
 " Visual mode: D
@@ -227,27 +234,31 @@ endif
 set grepprg=git\ grep\ -n
 
 " Color scheme
-" colorscheme railscasts 
 " colorscheme molokai
 " colorscheme desert
+" Other favorites: flatland, hybrid, jellybeans, Tommorow-Night, codeschool
+" http://cocopon.me/app/vim-color-gallery/
 set background=dark
 colorscheme solarized
-" colorscheme tomorrow
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
 let g:solarized_termcolors=256
 let g:solarized_contras="high"
 let g:solarized_bold=1
+
 " For some reason powerline fancy font stuff isn't working
-" let g:Powerline_symbols = 'fancy'
+let g:Powerline_symbols = 'fancy'
 
 " The following is a good way of setting fonts based on availability
-silent! set guifont=DejaVu\ Sans\ Mono\ 10
-if &guifont != 'DejaVu Sans Mono 10'
-  set guifont=Andale\ Mono:h13
+let os = substitute(system('uname'), "\n", "", "")
+if os == "Darwin"
+  set guifont=Monaco:h15
+elseif os == "Linux"
+  silent! set guifont=DejaVu\ Sans\ Mono\ 14
 endif
 
+let g:multi_cursor_prev_key='<C-N>'
 " Numbers
 " set number
 set relativenumber " used for showing relative line number
@@ -319,24 +330,42 @@ if exists(":Tabularize")
 endif
 
 let g:ctrlp_custom_ignore = {
-      \ 'dir': '\v\/(vendor|tmp|public|log|bin)'
+      \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
       \ }
 
 """ ----- Neocachecomplete -- START
-" " Disable AutoComplPop.
-" let g:acp_enableAtStartup = 0
-" let g:neocomplcache_enable_at_startup = 1
-" " Use smartcase.
-" let g:neocomplcache_enable_smart_case = 1
-" " Use camel case completion.
-" let g:neocomplcache_enable_camel_case_completion = 1
-" " Use underscore completion.
-" let g:neocomplcache_enable_underbar_completion = 1
-" let g:neocomplcache_manual_completion_start_length = 1
-" 
-" let g:neocomplcache_auto_completion_start_length = 5
-" let g:neocomplcache_enable_fuzzy_completion = 1
-" let g:neocomplcache_fuzzy_completion_start_length = 3
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 1
+" Use smartcase.
+let g:neocomplete#enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+ " Plugin key-mappings.
+ inoremap <expr><C-g>     neocomplete#undo_completion()
+ inoremap <expr><C-l>     neocomplete#complete_common_string()
 
+" The following prevents a conflict between multiple cursors
+ " Called once right before you start selecting multiple cursors
+function! Multiple_cursors_before()
+  if exists(':NeoCompleteLock')==2
+    exe 'NeoCompleteLock'
+  endif
+endfunction
+
+" Called once only when the multiple selection is canceled (default <Esc>)
+function! Multiple_cursors_after()
+  if exists(':NeoCompleteUnlock')==2
+    exe 'NeoCompleteUnlock'
+  endif
+endfunction
 """ ----- Neocachecomplete -- END
 
+ " Go related mappings
+ au FileType go nmap <Leader>gi <Plug>(go-info)
+ au FileType go nmap <Leader>gd <Plug>(go-doc)
+ au FileType go nmap <Leader>gr <Plug>(go-run)
+ au FileType go nmap <Leader>gb <Plug>(go-build)
+ au FileType go nmap <Leader>gt <Plug>(go-test)
+ au FileType go nmap gdt <Plug>(go-def-tab)

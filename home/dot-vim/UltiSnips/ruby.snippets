@@ -10,20 +10,8 @@ context "$1" do
 end # $1
 endsnippet
 
-snippet it "rspec it should block" !b
-it "should $1" do
-  $2
-end
-endsnippet
-
 snippet let "rspec let" !b
 let(:$1) { $2 }
-endsnippet
-
-snippet bef "rspec before block" !b
-before $1 do
-  $2
-end
 endsnippet
 
 snippet expectb "rspec expect block" !b
@@ -32,7 +20,7 @@ expect {
 }.to $2
 endsnippet
 
-snippet expecteq "rspec expec().to eq()" !b
+snippet expeq "rspec expec().to eq()" !b
 expect($1).to eq($2)
 endsnippet
 
@@ -43,3 +31,4 @@ endsnippet
 snippet FGC "FactoryGirl.create"
 FactoryGirl.create(:$1)
 endsnippet
+
