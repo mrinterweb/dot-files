@@ -62,6 +62,7 @@ set linespace=2
 set nobackup
 set noswapfile
 set nohlsearch " Turns off search highlighting
+set number
 
 nnoremap <F3> :set relativenumber!<CR>
 nnoremap <F4> :set hlsearch!<CR>
