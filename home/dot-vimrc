@@ -32,7 +32,6 @@ Plug 'tpope/vim-rails'
 Plug 'kien/ctrlp.vim'
 Plug 'Shougo/neocomplcache'
 Plug 'SirVer/UltiSnips'
-
 " snippets previously packaged with ultisnips is now in vim-snippets
 Plug 'honza/vim-snippets'
 Plug 'terryma/vim-multiple-cursors'
@@ -44,6 +43,12 @@ Plug 'danro/rename.vim'
 Plug 'flazz/vim-colorschemes'
 Plug 'tpope/vim-endwise'
 Plug 'rizzatti/dash.vim'
+Plug 'maksimr/vim-jsbeautify'
+Plug 'rhysd/vim-crystal'
+Plug 'Raimondi/delimitMate'
+Plug 'rizzatti/dash.vim'
+Plug 'heavenshell/vim-jsdoc'
+Plug 'elixir-lang/vim-elixir'
 " Plug 'mrinterweb/vim-visual-surround.git'
 call plug#end()
 
@@ -71,6 +76,7 @@ nnoremap <F6> :set spell! spelllang=en_us<CR>
 
 " http://stackoverflow.com/questions/8597247/text-in-gvim-disappearing
 set guioptions=agim
+set synmaxcol=150
 
 " This is an alternative that also works in block mode, but the deleted
 " text is lost and it only works for putting the current register.
@@ -88,6 +94,8 @@ set nowrap
 
 set noerrorbells visualbell t_vb=
 set novisualbell
+
+set sessionoptions=curdir,tabpages,winsize,winpos
 
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
@@ -212,6 +220,7 @@ nmap <F1> <Esc>
 
 inoremap jj <Esc>
 inoremap jk <Esc>
+inoremap kj <Esc>
 inoremap kk <Esc>:w<CR>
 
 " Cool tab completion stuff
@@ -230,11 +239,16 @@ if filereadable(".vimrc.local")
   source .vimrc.local
 endif
 
+" Ripgrep http://blog.burntsushi.net/ripgrep/
+if executable('rg')
+    set grepprg=rg\ --no-heading\ --vimgrep
+    set grepformat=%f:%l:%c:%m
 " Use Ack instead of Grep when available
-if executable("ack-grep")
+" elseif executable("ack-grep")
   " set grepprg=ack-grep -H --nogroup --nocolor --ignore-dir=tmp --ignore-dir=coverage
+else
+  set grepprg=git\ grep\ -n
 endif
-set grepprg=git\ grep\ -n
 
 " Color scheme
 " colorscheme molokai
@@ -249,6 +263,7 @@ colorscheme solarized
 let g:solarized_termcolors=256
 let g:solarized_contras="high"
 let g:solarized_bold=1
+let g:mustache_abbreviations=1
 
 " For some reason powerline fancy font stuff isn't working
 let g:Powerline_symbols = 'fancy'
@@ -345,22 +360,41 @@ let g:neocomplete#enable_at_startup = 1
 let g:neocomplete#enable_smart_case = 1
 " Set minimum syntax keyword length.
 let g:neocomplete#sources#syntax#min_keyword_length = 3
- " Plugin key-mappings.
- inoremap <expr><C-g>     neocomplete#undo_completion()
- inoremap <expr><C-l>     neocomplete#complete_common_string()
+let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
 
-" The following prevents a conflict between multiple cursors
- " Called once right before you start selecting multiple cursors
-function! Multiple_cursors_before()
-  if exists(':NeoCompleteLock')==2
-    exe 'NeoCompleteLock'
-  endif
-endfunction
+" Define keyword.
+if !exists('g:neocomplete#keyword_patterns')
+    let g:neocomplete#keyword_patterns = {}
+endif
+let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-" Called once only when the multiple selection is canceled (default <Esc>)
-function! Multiple_cursors_after()
-  if exists(':NeoCompleteUnlock')==2
-    exe 'NeoCompleteUnlock'
-  endif
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplete#undo_completion()
+inoremap <expr><C-l>     neocomplete#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+  return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
+  " For no inserting <CR> key.
+  "return pumvisible() ? "\<C-y>" : "\<CR>"
 endfunction
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+" Close popup by <Space>.
+"inoremap <expr><Space> pumvisible() ? "\<C-y>" : "\<Space>"
+
+" Enable omni completion.
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+
+" Enable heavy omni completion.
+if !exists('g:neocomplete#sources#omni#input_patterns')
+  let g:neocomplete#sources#omni#input_patterns = {}
+endif
 """ ----- Neocachecomplete -- END
