@@ -1,0 +1,110 @@
+#! /usr/bin/env ruby
+
+# nokogiri is required below unless --no-modify option is specified
+require 'optparse'
+require 'tempfile'
+
+@options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: svgoptimize [options] <path-to-svg-file>"
+
+  opts.on('-v', '--verbose', 'verbose logging') do |v|
+    @options[:verbose] = true
+  end
+  opts.on('-q', '--quiet', 'only result output is displayed') do |v|
+    @options[:quiet] = true
+  end
+  opts.on('--no-modify', 'disables svg xml element removal') do |v|
+    @options[:skip_xml_optimization] = true
+  end
+  opts.on('-c', '--copy', 'copies the output to the system clipboard') do |v|
+    @options[:copy_to_clipboard] = true
+  end
+  opts.on('--css', 'wraps the output in a background css rule') do |v|
+    @options[:css_wrap] = true
+  end
+end.parse!
+
+path = ARGV[0]
+unless path
+  puts "you must specify a path to the svg file you'd like to be optimized."
+  exit 1
+end
+
+unless File.exist?(path)
+  puts "path to file does not exist."
+  exit 1
+end
+
+def log(str, mode=:normal)
+  if @options[:quiet]
+    nil
+  elsif mode == :normal
+    puts str
+  elsif @options[:verbose] && mode == :verbose
+    puts str
+  end
+end
+
+def kb(total_bytes)
+  sprintf "%.2f KB", total_bytes / 1024.0
+end
+
+def size_to_kb(file)
+  kb file.size
+end
+
+input_file = File.open(path)
+tmp_file = Tempfile.new("svg-optimize-#{File.basename(path)}")
+tmp_file.write(input_file.read)
+tmp_file.rewind
+log "using temp file: #{tmp_file.path}", :verbose
+
+log "Input file: \n#{input_file.read}", :verbose
+log "Input SVG file size: #{size_to_kb(input_file)}"
+
+unless @options[:skip_xml_optimization]
+  require 'nokogiri'
+  xml = Nokogiri::XML(tmp_file.read.gsub(%r~.*<svg ~mi, '<svg '))
+  %w[description title].each do |node_name|
+    xml.css(node_name).remove
+  end
+
+  tmp_file.truncate(0)
+  tmp_file.rewind
+  # xml.remove_namespaces!
+  extraneous_attributes = xml.root.attributes.reject { |k| %w[version viewBox].include?(k) }.keys
+  extraneous_attributes.each { |attr| xml.root.delete(attr) }
+  xml_str = xml.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION).gsub(/>\s+</, "><")
+  tmp_file.write(xml_str)
+  tmp_file.rewind
+  log `cat #{tmp_file.path}`, :verbose
+  log "file size: #{`ls -lh #{tmp_file.path}`}", :verbose
+end
+
+base64tmp = Tempfile.new('svg-base64')
+`cat #{tmp_file.path} | openssl base64 | tr -d '\n' > #{base64tmp.path}`
+result = `cat #{base64tmp.path}`
+
+log "Optimized size: #{kb result.length}"
+log ""
+if @options[:css_wrap]
+  result = "background: url(data:image/svg+xml;base64,#{result}) top right no-repeat"
+  f = File.open(base64tmp.path, 'w')
+  f.write(result)
+  f.close
+end
+
+puts result
+
+if @options[:copy_to_clipboard]
+  clipboard_cmd = case RUBY_PLATFORM 
+                  when /darwin/
+                    'pbcopy'
+                  else
+                    'xclip'
+                  end
+
+  `cat #{base64tmp.path} | #{clipboard_cmd}`
+  puts "\n output copied to clipboard"
+end
