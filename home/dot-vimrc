@@ -49,6 +49,10 @@ Plug 'Raimondi/delimitMate'
 Plug 'rizzatti/dash.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'elixir-lang/vim-elixir'
+Plug 'majutsushi/tagbar'
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'leafgarland/typescript-vim'
+Plug 'pangloss/vim-javascript'
 " Plug 'mrinterweb/vim-visual-surround.git'
 call plug#end()
 
@@ -56,6 +60,9 @@ filetype plugin indent on     " required!
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
+
+" Turn off visual bell sound
+set noeb vb t_vb=
 
 set nobackup
 set nowritebackup
@@ -76,7 +83,7 @@ nnoremap <F6> :set spell! spelllang=en_us<CR>
 
 " http://stackoverflow.com/questions/8597247/text-in-gvim-disappearing
 set guioptions=agim
-set synmaxcol=150
+" set synmaxcol=150
 
 " This is an alternative that also works in block mode, but the deleted
 " text is lost and it only works for putting the current register.
@@ -181,6 +188,9 @@ map <Leader>sv :RSview
 map <Leader>su :RSunittest
 map <Leader>sf :RSfunctionaltest
 
+" Fugative shortcuts
+map <Leader>gs :Gstatus<CR>
+
 " Hide search highlighting
 map <Leader>h :set invhls <CR>
 
@@ -241,11 +251,15 @@ endif
 
 " Ripgrep http://blog.burntsushi.net/ripgrep/
 if executable('rg')
-    set grepprg=rg\ --no-heading\ --vimgrep
-    set grepformat=%f:%l:%c:%m
-" Use Ack instead of Grep when available
-" elseif executable("ack-grep")
-  " set grepprg=ack-grep -H --nogroup --nocolor --ignore-dir=tmp --ignore-dir=coverage
+  set grepprg=rg\ --no-heading\ --vimgrep
+  set grepformat=%f:%l:%c:%m
+
+  " Use rg in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'rg %s -l --color=never --files -g ""'
+  let g:ackprg = 'rg --vimgrep'
+
+  " rg is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
 else
   set grepprg=git\ grep\ -n
 endif
@@ -256,7 +270,8 @@ endif
 " Other favorites: flatland, hybrid, jellybeans, Tommorow-Night, codeschool
 " http://cocopon.me/app/vim-color-gallery/
 set background=dark
-colorscheme solarized
+colorscheme afterglow
+" colorscheme solarized
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
@@ -383,8 +398,8 @@ endfunction
 " <TAB>: completion.
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 " <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+" inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+" inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 " Close popup by <Space>.
 "inoremap <expr><Space> pumvisible() ? "\<C-y>" : "\<Space>"
 
