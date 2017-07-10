@@ -1,2 +1,2 @@
 #!/bin/bash
-ctags --tag-relative -Rf.git/tags.$$ --exclude=.git --exclude=log --exclude=tmp --exclude=tmp --exclude=public --languages=ruby --languages=javascript `bundle show --paths` $MY_RUBY_HOME .
+ctags --tag-relative -R --exclude=.git --exclude=log --exclude=tmp --exclude=public --languages=ruby `bundle show --paths` $MY_RUBY_HOME .
