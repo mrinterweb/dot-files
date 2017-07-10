@@ -275,8 +275,8 @@ endif
 " http://cocopon.me/app/vim-color-gallery/
 set background=dark
 " colorscheme solarized
-" colorscheme codedark
-colorscheme afterglow
+colorscheme codedark
+" colorscheme afterglow
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
