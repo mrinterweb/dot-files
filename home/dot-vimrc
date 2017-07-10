@@ -23,7 +23,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'Lokaltog/vim-powerline'
 Plug 'altercation/vim-colors-solarized'
-Plug 'Tabular'
+Plug 'godlygeek/tabular'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/tComment'
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
@@ -33,7 +33,7 @@ Plug 'kien/ctrlp.vim'
 Plug 'Shougo/neocomplete.vim'
 Plug 'SirVer/ultisnips'
 " snippets previously packaged with ultisnips is now in vim-snippets
-Plug 'honza/vim-snippets' 
+Plug 'honza/vim-snippets'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'mustache/vim-mustache-handlebars'
 Plug 'scrooloose/syntastic'
@@ -49,6 +49,12 @@ Plug 'Raimondi/delimitMate'
 Plug 'rizzatti/dash.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'elixir-lang/vim-elixir'
+Plug 'tomasiser/vim-code-dark'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'leafgarland/typescript-vim'
+Plug 'majutsushi/tagbar'
+Plug 'bluz71/vim-moonfly-colors'
 " Plug 'mrinterweb/vim-visual-surround.git'
 call plug#end()
 
@@ -57,7 +63,7 @@ filetype plugin indent on     " required!
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
-set nobackup 
+set nobackup
 set nowritebackup
 set history=50		" keep 50 lines of command line history
 set ruler		" show the cursor position all the time
@@ -108,7 +114,7 @@ if has("autocmd")
 
   " Set File type to 'text' for files ending in .txt
   autocmd BufNewFile,BufRead *.txt setfiletype text
-  autocmd BufRead *.rabl setfiletype ruby 
+  autocmd BufRead *.rabl setfiletype ruby
 
   " Enable soft-wrapping for text files
   autocmd FileType text,markdown,html,xhtml,eruby setlocal wrap linebreak nolist
@@ -163,21 +169,21 @@ map <Leader>R :e doc/README_FOR_APP<CR>
 map <Leader>w :w<CR>
 
 " Leader shortcuts for Rails commands
-map <Leader>m :Rmodel 
-map <Leader>c :Rcontroller 
-map <Leader>v :Rview 
-map <Leader>u :Runittest 
-map <Leader>f :Rfunctionaltest 
-map <Leader>tm :RTmodel 
-map <Leader>tc :RTcontroller 
-map <Leader>tv :RTview 
-map <Leader>tu :RTunittest 
-map <Leader>tf :RTfunctionaltest 
-map <Leader>sm :RSmodel 
-map <Leader>sc :RScontroller 
-map <Leader>sv :RSview 
-map <Leader>su :RSunittest 
-map <Leader>sf :RSfunctionaltest 
+map <Leader>m :Rmodel
+map <Leader>c :Rcontroller
+map <Leader>v :Rview
+map <Leader>u :Runittest
+map <Leader>f :Rfunctionaltest
+map <Leader>tm :RTmodel
+map <Leader>tc :RTcontroller
+map <Leader>tv :RTview
+map <Leader>tu :RTunittest
+map <Leader>tf :RTfunctionaltest
+map <Leader>sm :RSmodel
+map <Leader>sc :RScontroller
+map <Leader>sv :RSview
+map <Leader>su :RSunittest
+map <Leader>sf :RSfunctionaltest
 
 " Hide search highlighting
 map <Leader>h :set invhls <CR>
@@ -199,7 +205,7 @@ nnoremap <leader>. :CtrlPTag<cr>
 noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
-noremap <C-l> <C-w>l 
+noremap <C-l> <C-w>l
 
 " Duplicate a selection
 " Visual mode: D
@@ -254,7 +260,8 @@ endif
 " Other favorites: flatland, hybrid, jellybeans, Tommorow-Night, codeschool
 " http://cocopon.me/app/vim-color-gallery/
 set background=dark
-colorscheme solarized
+" colorscheme solarized
+colorscheme codedark
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
@@ -391,9 +398,34 @@ autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
 
+" remove whitespace
+autocmd BufWritePre * %s/\s\+$//e
+
 " Enable heavy omni completion.
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
 endif
 """ ----- Neocachecomplete -- END
 
+let g:airline_theme = 'codedark'
+
+let g:tagbar_type_crystal = {
+    \'ctagstype': 'Crystal',
+    \'ctagsbin': 'crystal-ctags --tag-file=- -s',
+    \'kinds': [
+        \'c:classes',
+        \'m:modules',
+        \'d:defs',
+        \'x:macros',
+        \'l:libs',
+        \'s:structs or unions',
+        \'f:fun'
+    \],
+    \'sro': '.',
+    \'kind2scope': {
+        \'c': 'namespace',
+        \'m': 'namespace',
+        \'l': 'namespace',
+        \'s': 'namespace'
+    \},
+\}
