@@ -111,6 +111,10 @@ export RUBY_GC_MALLOC_LIMIT=59000000
 
 ### Added by the Heroku Toolbelt
 
+if [[ -r ~/.profile ]]; then
+  source ~/.profile
+fi
+
 if [[ -r ~/.envkeys ]]; then
   source ~/.envkeys
 fi
@@ -120,3 +124,4 @@ source $ZSH/plugins/history-substring-search/history-substring-search.zsh
 export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
