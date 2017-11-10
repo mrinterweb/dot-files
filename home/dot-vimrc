@@ -50,13 +50,17 @@ Plug 'rizzatti/dash.vim'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'elixir-lang/vim-elixir'
 Plug 'tomasiser/vim-code-dark'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
 Plug 'leafgarland/typescript-vim'
 Plug 'majutsushi/tagbar'
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'danilo-augusto/vim-afterglow'
 Plug 'pangloss/vim-javascript'
+Plug 'skalnik/vim-vroom'
+Plug 'slim-template/vim-slim'
+Plug 'nightsense/seabird'
+Plug 'tpope/vim-endwise'
 " Plug 'mrinterweb/vim-visual-surround.git'
 call plug#end()
 
@@ -275,8 +279,8 @@ endif
 " http://cocopon.me/app/vim-color-gallery/
 set background=dark
 " colorscheme solarized
-colorscheme codedark
-" colorscheme afterglow
+" colorscheme codedark
+colorscheme afterglow
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
@@ -323,6 +327,9 @@ set tags=./tags;
 set tags+=gems.tags
 
 let g:fuf_splitPathMatching=1
+
+set splitbelow
+set splitright
 
 " Custom alias
 command! Closeall :bufdo bdelete
@@ -422,7 +429,7 @@ if !exists('g:neocomplete#sources#omni#input_patterns')
 endif
 """ ----- Neocachecomplete -- END
 
-let g:airline_theme = 'codedark'
+" let g:airline_theme = 'codedark'
 
 let g:tagbar_type_crystal = {
     \'ctagstype': 'Crystal',
@@ -444,3 +451,7 @@ let g:tagbar_type_crystal = {
         \'s': 'namespace'
     \},
 \}
+
+let g:syntastic_ruby_checkers = ['rubocop', 'mri']
+
+let g:vroom_use_spring = 1
