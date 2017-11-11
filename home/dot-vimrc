@@ -304,6 +304,8 @@ let g:multi_cursor_prev_key='<C-N>'
 " Numbers
 " set number
 set relativenumber " used for showing relative line number
+set nocursorline
+set lazyredraw
 set numberwidth=4
 autocmd InsertEnter * :set number
 autocmd InsertLeave * :set relativenumber
