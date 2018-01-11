@@ -176,8 +176,9 @@ set laststatus=2
 let mapleader = ","
 
 " Edit the README_FOR_APP (makes :R commands work)
-map <Leader>R :e doc/README_FOR_APP<CR>
-map <Leader>w :w<CR>
+" map <Leader>R :e doc/README_FOR_APP<CR>
+" map <Leader>w :w<CR>
+map <Leader>R :VroomRunNearest<CR>
 
 " Leader shortcuts for Rails commands
 map <Leader>m :Rmodel
@@ -295,7 +296,7 @@ let g:Powerline_symbols = 'fancy'
 
 " The following is a good way of setting fonts based on availability
 let os = substitute(system('uname'), "\n", "", "")
-if os == "Darwin"
+if os == "Darwin" && !has("gui_vimr")
   set guifont=Monaco:h15
 elseif os == "Linux"
   silent! set guifont=DejaVu\ Sans\ Mono\ 14
@@ -337,27 +338,15 @@ set splitright
 " Custom alias
 command! Closeall :bufdo bdelete
 
-function! TabLeft()
-   let tab_number = tabpagenr() - 1
-   if tab_number == 0
-      execute "tabm" tabpagenr('$') - 1
-   else
-      execute "tabm" tab_number - 1
-   endif
-endfunction
+noremap <silent><C-S-PageUp> gT
+noremap <silent><C-S-PageDown> gt
+noremap <silent><Right> gt
+noremap <silent><Left> gT
 
-function! TabRight()
-   let tab_number = tabpagenr() - 1
-   let last_tab_number = tabpagenr('$') - 1
-   if tab_number == last_tab_number
-      execute "tabm" 0
-   else
-      execute "tabm" tab_number + 1
-   endif
-endfunction
-
-map <silent><C-S-PageUp> :execute TabRight()<CR>
-map <silent><C-S-PageDown> :execute TabLeft()<CR>
+if has("gui_vimr")
+  nnoremap <silent><D-S-{> gT
+  nnoremap <silent><D-S-}> gt
+endif
 
 " map <Leader>w :call OpenURL()<CR>
 map <Leader>n :NERDTreeToggle<CR>
@@ -458,3 +447,6 @@ let g:tagbar_type_crystal = {
 let g:syntastic_ruby_checkers = ['rubocop', 'mri']
 
 let g:vroom_use_spring = 1
+
+let g:python2_host_prog = '/usr/local/bin/python'
+let g:python3_host_prog = '/usr/local/bin/python3'
