@@ -1,0 +1,12 @@
+#! /usr/bin/env ruby
+# Switch to git branch by matching part of a name
+
+results = `git branch -l | grep -i #{ARGV[0]} | cut -f 1`
+branchNames = results.split("\n").map { |bn| bn.sub(/^\*/, '').strip }
+
+if branchNames.length == 1
+  `git checkout #{branchNames.first}`
+else
+  puts 'More than one branch name matched'
+  puts branchNames.join("\n")
+end
