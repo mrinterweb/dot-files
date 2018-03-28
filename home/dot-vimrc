@@ -29,20 +29,20 @@ Plug 'vim-scripts/tComment'
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
-Plug 'kien/ctrlp.vim'
-Plug 'Valloric/YouCompleteMe'
+Plug 'ctrlpvim/ctrlp.vim'
+" Plug 'Valloric/YouCompleteMe'
 Plug 'Shougo/neocomplcache'
 Plug 'SirVer/UltiSnips'
 " snippets previously packaged with ultisnips is now in vim-snippets
 Plug 'honza/vim-snippets'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
+Plug 'w0rp/ale'
 " Plug 'dsawardekar/ember.vim'
 " Plug 'mattn/emmet-vim'
 Plug 'danro/rename.vim'
 Plug 'flazz/vim-colorschemes'
 Plug 'tpope/vim-endwise'
-Plug 'rizzatti/dash.vim'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'rhysd/vim-crystal'
 " Plug 'Raimondi/delimitMate'
@@ -61,7 +61,7 @@ Plug 'skalnik/vim-vroom'
 Plug 'slim-template/vim-slim'
 Plug 'nightsense/seabird'
 Plug 'tpope/vim-endwise'
-Plug 'nixprime/cpsm', { 'do': 'env PY3=OFF ./install.sh'}
+" Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
 Plug 'posva/vim-vue'
 " Plug 'mrinterweb/vim-visual-surround.git'
 call plug#end()
@@ -265,13 +265,15 @@ if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep
   set grepformat=%f:%l:%c:%m
 
+  let g:ackprg = 'rg --vimgrep --no-heading'
+
   " Use rg in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'rg %s -l --color=never --files -g ""'
-  let g:ackprg = 'rg --vimgrep'
+  let g:ctrlp_user_command = 'rg -l --sort-files --color=never --files %s'
 
   " rg is fast enough that CtrlP doesn't need to cache
   let g:ctrlp_use_caching = 0
-  let g:ctrlp_match_func = { 'match': 'cpsm#CtrlPMatch' }
+  let g:ctrlp_working_path_mode = 'ra'
+  let g:ctrlp_switch_buffer = 'et'
 else
   set grepprg=git\ grep\ -n
 endif
@@ -446,7 +448,7 @@ let g:tagbar_type_crystal = {
     \},
 \}
 
-let g:syntastic_ruby_checkers = ['rubocop', 'mri']
+" let g:syntastic_ruby_checkers = ['rubocop', 'mri']
 
 let g:vroom_use_spring = 1
 
