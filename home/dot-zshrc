@@ -99,6 +99,7 @@ alias todo="w2do --color"
 alias psearch="ps aux | grep"
 alias pp='ruby -rap -rjson -e "ap JSON.parse(STDIN.read), indent: 2"'
 alias genctags='bundle list --paths=true | xargs ctags --language-force=ruby --extra=+f -R app lib spec test'
+alias ad="say \"all done\""
 
 export LESS="-i -n -R"
 export EDITOR=vim
