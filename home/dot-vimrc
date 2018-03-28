@@ -62,6 +62,17 @@ Plug 'tpope/vim-endwise'
 " Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
 Plug 'posva/vim-vue'
 " Plug 'mrinterweb/vim-visual-surround.git'
+
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'uplus/deoplete-solargraph'
+let g:deoplete#enable_at_startup = 1
+
 call plug#end()
 
 filetype plugin indent on     " required!
@@ -399,8 +410,19 @@ let g:tagbar_type_crystal = {
 
 let g:vroom_use_spring = 1
 
-let g:python2_host_prog = '/usr/local/bin/python'
-let g:python3_host_prog = '/usr/local/bin/python3'
+if filereadable('/usr/local/bin/python')
+  let g:python2_host_prog = '/usr/local/bin/python'
+elseif filereadable('/usr/bin/python')
+  let g:python2_host_prog = '/usr/bin/python'
+else
+  echo "No python2 found"
+endif
+
+if filereadable('/usr/local/bin/python3')
+  let g:python3_host_prog = '/usr/local/bin/python3'
+else
+  echo "No python3 found"
+endif
 
 let g:ycm_semantic_triggers =  {
   \   'c' : ['->', '.'],
