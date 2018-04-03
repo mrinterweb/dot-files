@@ -29,20 +29,18 @@ Plug 'vim-scripts/tComment'
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
-Plug 'kien/ctrlp.vim'
-Plug 'Valloric/YouCompleteMe'
-Plug 'Shougo/neocomplcache'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'SirVer/UltiSnips'
 " snippets previously packaged with ultisnips is now in vim-snippets
 Plug 'honza/vim-snippets'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
+Plug 'w0rp/ale'
 " Plug 'dsawardekar/ember.vim'
 " Plug 'mattn/emmet-vim'
 Plug 'danro/rename.vim'
 Plug 'flazz/vim-colorschemes'
 Plug 'tpope/vim-endwise'
-Plug 'rizzatti/dash.vim'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'rhysd/vim-crystal'
 " Plug 'Raimondi/delimitMate'
@@ -61,9 +59,20 @@ Plug 'skalnik/vim-vroom'
 Plug 'slim-template/vim-slim'
 Plug 'nightsense/seabird'
 Plug 'tpope/vim-endwise'
-Plug 'nixprime/cpsm', { 'do': 'env PY3=OFF ./install.sh'}
+" Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
 Plug 'posva/vim-vue'
 " Plug 'mrinterweb/vim-visual-surround.git'
+
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'uplus/deoplete-solargraph'
+let g:deoplete#enable_at_startup = 1
+
 call plug#end()
 
 filetype plugin indent on     " required!
@@ -265,13 +274,15 @@ if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep
   set grepformat=%f:%l:%c:%m
 
+  let g:ackprg = 'rg --vimgrep --no-heading'
+
   " Use rg in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'rg %s -l --color=never --files -g ""'
-  let g:ackprg = 'rg --vimgrep'
+  let g:ctrlp_user_command = 'rg -l --sort-files --color=never --files %s'
 
   " rg is fast enough that CtrlP doesn't need to cache
   let g:ctrlp_use_caching = 0
-  let g:ctrlp_match_func = { 'match': 'cpsm#CtrlPMatch' }
+  let g:ctrlp_working_path_mode = 'ra'
+  let g:ctrlp_switch_buffer = 'et'
 else
   set grepprg=git\ grep\ -n
 endif
@@ -372,57 +383,6 @@ let g:ctrlp_custom_ignore = {
       \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
       \ }
 
-""" ----- Neocachecomplete -- START
-" Disable AutoComplPop.
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-
-" Define keyword.
-if !exists('g:neocomplete#keyword_patterns')
-    let g:neocomplete#keyword_patterns = {}
-endif
-let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-" Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
-
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-function! s:my_cr_function()
-  return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-  " For no inserting <CR> key.
-  "return pumvisible() ? "\<C-y>" : "\<CR>"
-endfunction
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-" inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-" inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-" Close popup by <Space>.
-"inoremap <expr><Space> pumvisible() ? "\<C-y>" : "\<Space>"
-
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-
-" remove whitespace
-autocmd BufWritePre * %s/\s\+$//e
-
-" Enable heavy omni completion.
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-""" ----- Neocachecomplete -- END
-
 " let g:airline_theme = 'codedark'
 
 let g:tagbar_type_crystal = {
@@ -446,12 +406,23 @@ let g:tagbar_type_crystal = {
     \},
 \}
 
-let g:syntastic_ruby_checkers = ['rubocop', 'mri']
+" let g:syntastic_ruby_checkers = ['rubocop', 'mri']
 
 let g:vroom_use_spring = 1
 
-let g:python2_host_prog = '/usr/local/bin/python'
-let g:python3_host_prog = '/usr/local/bin/python3'
+if filereadable('/usr/local/bin/python')
+  let g:python2_host_prog = '/usr/local/bin/python'
+elseif filereadable('/usr/bin/python')
+  let g:python2_host_prog = '/usr/bin/python'
+else
+  echo "No python2 found"
+endif
+
+if filereadable('/usr/local/bin/python3')
+  let g:python3_host_prog = '/usr/local/bin/python3'
+else
+  echo "No python3 found"
+endif
 
 let g:ycm_semantic_triggers =  {
   \   'c' : ['->', '.'],

@@ -1,2 +1,2 @@
 #!/bin/bash
-ctags --tag-relative -R --exclude=.git --exclude=log --exclude=tmp --exclude=public --languages=ruby `bundle show --paths` $MY_RUBY_HOME .
+ctags --tag-relative -R --languages=ruby app lib config `bundle show --paths`
