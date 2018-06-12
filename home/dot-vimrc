@@ -25,6 +25,7 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'altercation/vim-colors-solarized'
 Plug 'godlygeek/tabular'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 Plug 'vim-scripts/tComment'
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'tpope/vim-rails'
@@ -61,17 +62,15 @@ Plug 'nightsense/seabird'
 Plug 'tpope/vim-endwise'
 " Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
 Plug 'posva/vim-vue'
+Plug 'cakebaker/scss-syntax.vim'
 " Plug 'mrinterweb/vim-visual-surround.git'
+Plug 'ervandew/supertab'
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
-  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
-Plug 'uplus/deoplete-solargraph'
-let g:deoplete#enable_at_startup = 1
 
 call plug#end()
 
@@ -158,6 +157,8 @@ if has("autocmd")
   autocmd BufWritePost .vimrc source $MYVIMRC
 
   autocmd BufWritePre * %s/\s\+$//e
+
+  autocmd FileType vue syntax sync fromstart
 
   augroup END
 
