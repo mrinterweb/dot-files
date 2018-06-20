@@ -25,6 +25,7 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'altercation/vim-colors-solarized'
 Plug 'godlygeek/tabular'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 Plug 'vim-scripts/tComment'
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'tpope/vim-rails'
@@ -61,17 +62,15 @@ Plug 'nightsense/seabird'
 Plug 'tpope/vim-endwise'
 " Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
 Plug 'posva/vim-vue'
+Plug 'cakebaker/scss-syntax.vim'
 " Plug 'mrinterweb/vim-visual-surround.git'
+Plug 'ervandew/supertab'
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
-  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
-Plug 'uplus/deoplete-solargraph'
-let g:deoplete#enable_at_startup = 1
 
 call plug#end()
 
@@ -159,6 +158,8 @@ if has("autocmd")
 
   autocmd BufWritePre * %s/\s\+$//e
 
+  autocmd FileType vue syntax sync fromstart
+
   augroup END
 
 else
@@ -185,11 +186,6 @@ set laststatus=2
 
 " \ is the leader character
 let mapleader = ","
-
-" Edit the README_FOR_APP (makes :R commands work)
-" map <Leader>R :e doc/README_FOR_APP<CR>
-" map <Leader>w :w<CR>
-map <Leader>R :VroomRunNearest<CR>
 
 " Leader shortcuts for Rails commands
 map <Leader>m :Rmodel
@@ -408,7 +404,12 @@ let g:tagbar_type_crystal = {
 
 " let g:syntastic_ruby_checkers = ['rubocop', 'mri']
 
+" Vroom -- start
 let g:vroom_use_spring = 1
+let g:vroom_use_terminal = 1
+let g:vroom_use_colors = 1
+let g:vroom_binstubs_path = 1
+" Vroom -- end
 
 if filereadable('/usr/local/bin/python')
   let g:python2_host_prog = '/usr/local/bin/python'

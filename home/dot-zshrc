@@ -92,7 +92,6 @@ alias gs="git status"
 # alias gco="git checkout"
 
 alias be="bundle exec"
-# alias ack=ack-grep
 alias release="git tag -a -s"
 alias cdr="cd .. && cd -"
 alias todo="w2do --color"
