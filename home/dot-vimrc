@@ -444,4 +444,4 @@ let g:ycm_min_num_of_chars_for_completion = 1
 let g:ycm_rust_src_path = "~/code/source/rust/src"
 
 " UltiSnips triggering
-let g:UltiSnipsExpandTrigger='<C-E>'
+let g:UltiSnipsExpandTrigger='<C-e>'
