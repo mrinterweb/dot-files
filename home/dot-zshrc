@@ -99,6 +99,7 @@ alias psearch="ps aux | grep"
 alias pp='ruby -rap -rjson -e "ap JSON.parse(STDIN.read), indent: 2"'
 alias genctags='bundle list --paths=true | xargs ctags --language-force=ruby --extra=+f -R app lib spec test'
 alias ad="say \"all done\""
+alias git-prune-merged="git branch --merged master | grep -v master | xargs git branch -d"
 
 export LESS="-i -n -R"
 export EDITOR=vim
@@ -134,3 +135,4 @@ export NVM_DIR="$HOME/.nvm"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
