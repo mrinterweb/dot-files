@@ -39,6 +39,7 @@ Plug 'slim-template/vim-slim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-endwise'
+Plug 'tyru/caw.vim'
 Plug 'w0rp/ale'
 
 " --- Colors --- START
@@ -343,3 +344,24 @@ let g:NERDDefaultAlign = 'left'
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#disable_auto_complete = 1
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : deoplete#mappings#manual_complete()
+
+" Vue syntax commenting
+let g:ft = ''
+function! NERDCommenter_before()
+  if &ft == 'vue'
+    let g:ft = 'vue'
+    let stack = synstack(line('.'), col('.'))
+    if len(stack) > 0
+      let syn = synIDattr((stack)[0], 'name')
+      if len(syn) > 0
+        exe 'setf ' . substitute(tolower(syn), '^vue_', '', '')
+      endif
+    endif
+  endif
+endfunction
+function! NERDCommenter_after()
+  if g:ft == 'vue'
+    setf vue
+    let g:ft = ''
+  endif
+endfunction
