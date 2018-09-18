@@ -1,70 +1,53 @@
 " SUPER IMPORTANT: this relies on Vundle being installed. Let me explain...
 " All dependencies are managed with Vundle as you can see lines below starting
 " with "Plug *"
-" https://github.com/gmarik/Vundle.vim
-" To install Vundle:
-" mkdir -p ~/.vim/bundle
-" git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-" Then when you launch vim, run command "BundleInstall"
-" That's all. No more configuration should be needed.
 
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 filetype off
 
-" set rtp+=~/.vim/vundle.git/
-"set rtp+=~/.vim/bundle/vundle/
-"call vundle#rc()
-"
 call plug#begin('~/.vim/plugged')
 
-" Plug 'gmarik/vundle'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-" Plug 'powerline/powerline'
-Plug 'altercation/vim-colors-solarized'
-Plug 'godlygeek/tabular'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'vim-scripts/tComment'
-Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
-Plug 'ctrlpvim/ctrlp.vim'
+
+Plug '/usr/local/opt/fzf'
+nnoremap <c-p> :FZF<cr>
+
+" Plug 'mrinterweb/vim-visual-surround.git'
 Plug 'SirVer/UltiSnips'
-" snippets previously packaged with ultisnips is now in vim-snippets
-Plug 'honza/vim-snippets'
-Plug 'terryma/vim-multiple-cursors'
-" Plug 'scrooloose/syntastic'
-Plug 'w0rp/ale'
-" Plug 'dsawardekar/ember.vim'
-" Plug 'mattn/emmet-vim'
+Plug 'cakebaker/scss-syntax.vim'
 Plug 'danro/rename.vim'
-Plug 'flazz/vim-colorschemes'
-Plug 'tpope/vim-endwise'
-Plug 'maksimr/vim-jsbeautify'
-Plug 'rhysd/vim-crystal'
-" Plug 'Raimondi/delimitMate'
-Plug 'rizzatti/dash.vim'
-Plug 'heavenshell/vim-jsdoc'
 Plug 'elixir-lang/vim-elixir'
-Plug 'tomasiser/vim-code-dark'
-" Plug 'vim-airline/vim-airline'
-" Plug 'vim-airline/vim-airline-themes'
-Plug 'leafgarland/typescript-vim'
+Plug 'flazz/vim-colorschemes'
+Plug 'heavenshell/vim-jsdoc'
+Plug 'honza/vim-snippets'
+Plug 'junegunn/vim-easy-align'
 Plug 'majutsushi/tagbar'
-Plug 'bluz71/vim-moonfly-colors'
-Plug 'danilo-augusto/vim-afterglow'
+Plug 'maksimr/vim-jsbeautify'
 Plug 'pangloss/vim-javascript'
+Plug 'posva/vim-vue'
+Plug 'rhysd/vim-crystal'
+Plug 'scrooloose/nerdcommenter'
 Plug 'skalnik/vim-vroom'
 Plug 'slim-template/vim-slim'
-Plug 'nightsense/seabird'
+Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
-" Plug 'nixprime/cpsm', { 'do': 'env PY3=ON ./install.sh'}
-Plug 'posva/vim-vue'
-Plug 'cakebaker/scss-syntax.vim'
-" Plug 'mrinterweb/vim-visual-surround.git'
-Plug 'ervandew/supertab'
+Plug 'tpope/vim-endwise'
+Plug 'w0rp/ale'
+
+" --- Colors --- START
+Plug 'altercation/vim-colors-solarized'
+Plug 'bluz71/vim-moonfly-colors'
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'nightsense/seabird'
+Plug 'tomasiser/vim-code-dark'
+" --- Colors --- END
 
 if has('nvim')
 else
@@ -155,26 +138,12 @@ if has("autocmd")
 
   " Automatically load .vimrc source when saved
   autocmd BufWritePost .vimrc source $MYVIMRC
-
   autocmd BufWritePre * %s/\s\+$//e
-
   autocmd FileType vue syntax sync fromstart
-
   augroup END
-
 else
-
   set autoindent		" always set autoindenting on
-
 endif " has("autocmd")
-
-" if has("folding")
-  " set foldenable
-  " set foldmethod=syntax
-  " set foldlevel=1
-  " set foldnestmax=2
-  " set foldtext=strpart(getline(v:foldstart),0,50).'\ ...\ '.substitute(getline(v:foldend),'^[\ #]*','','g').'\ '
-" endif
 
 " Softtabs, 2 spaces
 set tabstop=2
@@ -186,23 +155,6 @@ set laststatus=2
 
 " \ is the leader character
 let mapleader = ","
-
-" Leader shortcuts for Rails commands
-map <Leader>m :Rmodel
-map <Leader>c :Rcontroller
-map <Leader>v :Rview
-map <Leader>u :Runittest
-map <Leader>f :Rfunctionaltest
-map <Leader>tm :RTmodel
-map <Leader>tc :RTcontroller
-map <Leader>tv :RTview
-map <Leader>tu :RTunittest
-map <Leader>tf :RTfunctionaltest
-map <Leader>sm :RSmodel
-map <Leader>sc :RScontroller
-map <Leader>sv :RSview
-map <Leader>su :RSunittest
-map <Leader>sf :RSfunctionaltest
 
 " Fugative shortcuts
 map <Leader>gs :Gstatus<CR>
@@ -229,8 +181,6 @@ noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 
-" Duplicate a selection
-" Visual mode: D
 vmap D y'>p
 
 " Press Shift+P while in visual mode to replace the selection without
@@ -243,7 +193,6 @@ au! BufRead,BufNewFile *.haml         setfiletype haml
 " No Help, please
 nmap <F1> <Esc>
 
-
 inoremap jj <Esc>
 inoremap jk <Esc>
 inoremap kj <Esc>
@@ -252,13 +201,6 @@ inoremap kk <Esc>:w<CR>
 " Cool tab completion stuff
 set wildmenu
 set wildmode=list:longest,full
-
-" Display extra whitespace
-" set list listchars=tab:»·,trail:·
-
-" Edit routes
-command! Rroutes :e config/routes.rb
-command! Rschema :e db/schema.rb
 
 " Local config
 if filereadable(".vimrc.local")
@@ -270,7 +212,7 @@ if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep
   set grepformat=%f:%l:%c:%m
 
-  let g:ackprg = 'rg --vimgrep --no-heading'
+  let g:ackprg = 'rg --vimgrep --no-heading -t1'
 
   " Use rg in CtrlP for listing files. Lightning fast and respects .gitignore
   let g:ctrlp_user_command = 'rg -l --sort-files --color=never --files %s'
@@ -362,47 +304,9 @@ map <Leader>n :NERDTreeToggle<CR>
 " map <Leader>t :CommandT<CR>
 map <Leader>mt :tabnew<CR>
 
-" Map some standard cut copy paste keys
-vnoremap <C-c> "+yi
-vmap <C-x> "+c
-vmap <C-v> c<ESC>"+p
-imap <C-v> <ESC>"+pa
-
-if exists(":Tabularize")
-  vmap <Leader>a, :Tabularize /,\zs<CR>
-  vmap <Leader>a> :Tabularize /=><CR>
-  vmap <Leader>a :Tabularize /\zs<CR>
-  vmap <Leader>a: :Tabularize /:\zs<CR>
-endif
-
-let g:ctrlp_custom_ignore = {
-      \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
-      \ }
-
-" let g:airline_theme = 'codedark'
-
-let g:tagbar_type_crystal = {
-    \'ctagstype': 'Crystal',
-    \'ctagsbin': 'crystal-ctags --tag-file=- -s',
-    \'kinds': [
-        \'c:classes',
-        \'m:modules',
-        \'d:defs',
-        \'x:macros',
-        \'l:libs',
-        \'s:structs or unions',
-        \'f:fun'
-    \],
-    \'sro': '.',
-    \'kind2scope': {
-        \'c': 'namespace',
-        \'m': 'namespace',
-        \'l': 'namespace',
-        \'s': 'namespace'
-    \},
-\}
-
-" let g:syntastic_ruby_checkers = ['rubocop', 'mri']
+" let g:ctrlp_custom_ignore = {
+"       \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
+"       \ }
 
 " Vroom -- start
 let g:vroom_use_spring = 1
@@ -425,23 +329,11 @@ else
   echo "No python3 found"
 endif
 
-let g:ycm_semantic_triggers =  {
-  \   'c' : ['->', '.'],
-  \   'objc' : ['->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s',
-  \             're!\[.*\]\s'],
-  \   'ocaml' : ['.', '#'],
-  \   'cpp,objcpp' : ['->', '.', '::'],
-  \   'perl' : ['->'],
-  \   'php' : ['->', '::'],
-  \   'cs,java,javascript,typescript,d,python,perl6,scala,vb,elixir,go' : ['.'],
-  \   'ruby' : ['.', '::'],
-  \   'lua' : ['.', ':'],
-  \   'erlang' : [':'],
-  \ }
-
-let g:ycm_use_ultisnips_completer = 1
-let g:ycm_min_num_of_chars_for_completion = 1
-let g:ycm_rust_src_path = "~/code/source/rust/src"
-
 " UltiSnips triggering
 let g:UltiSnipsExpandTrigger='<C-e>'
+
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+"
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
