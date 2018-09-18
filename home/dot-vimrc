@@ -50,7 +50,9 @@ Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
 
 if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
+  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
@@ -337,3 +339,7 @@ let g:NERDSpaceDelims = 1
 "
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'left'
+
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#disable_auto_complete = 1
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : deoplete#mappings#manual_complete()
