@@ -17,6 +17,7 @@ Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
 
 Plug '/usr/local/opt/fzf'
+let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --hidden --threads=1'
 nnoremap <c-p> :FZF<cr>
 
 " Plug 'mrinterweb/vim-visual-surround.git'
