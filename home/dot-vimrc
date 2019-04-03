@@ -17,7 +17,7 @@ Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
 
 Plug '/usr/local/opt/fzf'
-let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --hidden --threads=1'
+let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --threads=1'
 nnoremap <c-p> :FZF<cr>
 
 " Plug 'mrinterweb/vim-visual-surround.git'
@@ -39,9 +39,15 @@ Plug 'skalnik/vim-vroom'
 Plug 'slim-template/vim-slim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-endwise'
-Plug 'tyru/caw.vim'
+Plug 'tpope/vim-surround'
 Plug 'w0rp/ale'
+Plug 'kchmck/vim-coffee-script'
+Plug 'zxqfl/tabnine-vim'
+Plug 'jreybert/vimagit'
+Plug 'Yggdroot/indentLine'
+Plug 'janko/vim-test'
+Plug 'tpope/vim-dispatch'
+Plug 'Valloric/ListToggle'
 
 " --- Colors --- START
 Plug 'altercation/vim-colors-solarized'
@@ -52,11 +58,12 @@ Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
+  " vim-test setup
+  let test#strategy = {
+    \ 'nearest': 'neovim',
+    \ 'file':    'neovim',
+    \ 'suite':   'iterm',
+  \}
 endif
 
 call plug#end()
@@ -125,6 +132,9 @@ if has("autocmd")
   " Enable soft-wrapping for text files
   autocmd FileType text,markdown,html,xhtml,eruby setlocal wrap linebreak nolist
 
+  " Check for file change to see if buffer needs reloading https://stackoverflow.com/questions/923737/detect-file-change-offer-to-reload-file/927634#927634
+  autocmd CursorHold * checktime
+
   " Put these in an autocmd group, so that we can delete them easily.
   augroup vimrcEx
   au!
@@ -180,10 +190,18 @@ cmap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
 
 nnoremap <leader>. :CtrlPTag<cr>
 
+" vim-test
+map <Leader>tn :w<CR>:TestNearest<CR>
+map <Leader>tnb :w<CR>:TestNearest -strategy=dispatch_background<CR>
+map <Leader>tf :w<CR>:TestFile<CR>
+map <Leader>tfb :w<CR>:TestFile -strategy=dispatch_background<CR>
+
 noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
+
+let $PATH .= ':/Users/seanmccleary/.rbenv/shims'
 
 vmap D y'>p
 
@@ -213,7 +231,7 @@ endif
 
 " Ripgrep http://blog.burntsushi.net/ripgrep/
 if executable('rg')
-  set grepprg=rg\ --no-heading\ --vimgrep
+  set grepprg=rg\ --no-heading\ --vimgrep\ --sort\ path
   set grepformat=%f:%l:%c:%m
 
   let g:ackprg = 'rg --vimgrep --no-heading -t1'
@@ -290,6 +308,10 @@ let g:fuf_splitPathMatching=1
 set splitbelow
 set splitright
 
+" Folds
+set foldmethod=indent
+set foldlevel=99
+
 " Custom alias
 command! Closeall :bufdo bdelete
 
@@ -342,10 +364,6 @@ let g:NERDSpaceDelims = 1
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'left'
 
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#disable_auto_complete = 1
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : deoplete#mappings#manual_complete()
-
 " Vue syntax commenting
 let g:ft = ''
 function! NERDCommenter_before()
@@ -366,3 +384,6 @@ function! NERDCommenter_after()
     let g:ft = ''
   endif
 endfunction
+
+let g:indentLine_color_gui = '#3F3F3F'
+let g:indentLine_char = '┆'
