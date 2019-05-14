@@ -9,7 +9,17 @@ export ZSH=$HOME/.oh-my-zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+
+# To install custom spaceship theme:
+# git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+# ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+ZSH_THEME="spaceship"
+SPACESHIP_PROMPT_ADD_NEWLINE=false
+SPACESHIP_PROMPT_SEPARATE_LINE=false
+SPACESHIP_RUBY_SHOW=false
+SPACESHIP_NODE_SHOW=false
+SPACESHIP_PACKAGE_SHOW=false
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -49,75 +59,12 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(gitfast bundler history-substring-search)
+plugins=(git gitfast bundler history-substring-search)
 
 source $ZSH/oh-my-zsh.sh
 
-# fpath=(source/zsh-completions $fpath)
-# Customize to your needs...
-
-[[ -s "/home/sean/.rvm/scripts/rvm" ]] && source "/home/sean/.rvm/scripts/rvm"
-
-extra_paths=(
-$HOME/scripts
-$HOME/.rvm/bin
-$HOME/Programs/android_sdk/platform-tools
-$HOME/Programs/android_sdk/tools
-$HOME/.npm-packages/bin
-$HOME/source/couchbase-sync-gateway/bin
-/usr/local/share/npm/bin
-/usr/local/heroku/bin
-$HOME/android/platform-tools
-)
-
-for ex_path in ${extra_paths[@]}
-do
-  if [[ -d $ex_path ]] ; then
-    export PATH=$PATH:$ex_path
-  fi
-done
-
-
-# --------- Oh My ZSH plugins
-plugins=(git)
-#
-# Enable vi key bindings
-# bindkey -v
-# bindkey -e
-
-# ---------  Git Alias
-alias gs="git status"
-# alias gca="git commit -a"
-# alias gcp="git cherry-pick"
-# alias gco="git checkout"
-
-alias be="bundle exec"
-alias release="git tag -a -s"
-alias cdr="cd .. && cd -"
-alias todo="w2do --color"
-alias psearch="ps aux | grep"
-alias pp='ruby -rap -rjson -e "ap JSON.parse(STDIN.read), indent: 2"'
-alias genctags='bundle list --paths=true | xargs ctags --language-force=ruby --extra=+f -R app lib spec test'
-alias ad="say \"all done\""
-alias git-prune-merged="git branch --merged master | grep -v master | xargs git branch -d"
-
-export LESS="-i -n -R"
-export EDITOR=vim
-export rvm_source_path=$rvm_path/src
-# Tune the GC like Twitter does
-export RUBY_GC_HEAP_INIT_SLOTS=500000
-export RUBY_HEAP_SLOTS_INCREMENT=250000
-export RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
-export RUBY_GC_MALLOC_LIMIT=59000000
-
-### Added by the Heroku Toolbelt
-
 if [[ -r ~/.profile ]]; then
   source ~/.profile
-fi
-
-if [[ -r ~/.envkeys ]]; then
-  source ~/.envkeys
 fi
 
 source $ZSH/plugins/history-substring-search/history-substring-search.zsh
@@ -126,13 +73,8 @@ export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-[[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" # load avn
-
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
+export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
