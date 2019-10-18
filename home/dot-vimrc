@@ -14,6 +14,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'vim-scripts/tComment'
 Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rbenv'
 Plug 'vim-ruby/vim-ruby'
 
 Plug '/usr/local/opt/fzf'
@@ -25,7 +26,6 @@ Plug 'SirVer/UltiSnips'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'danro/rename.vim'
 Plug 'elixir-lang/vim-elixir'
-Plug 'flazz/vim-colorschemes'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'honza/vim-snippets'
 Plug 'junegunn/vim-easy-align'
@@ -39,9 +39,10 @@ Plug 'slim-template/vim-slim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 Plug 'kchmck/vim-coffee-script'
-Plug 'zxqfl/tabnine-vim'
+" Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+"
 Plug 'jreybert/vimagit'
 Plug 'Yggdroot/indentLine'
 Plug 'janko/vim-test'
@@ -49,13 +50,23 @@ Plug 'tpope/vim-dispatch'
 Plug 'Valloric/ListToggle'
 
 " --- Colors --- START
-" Plug 'altercation/vim-colors-solarized'
+Plug 'flazz/vim-colorschemes'
 Plug 'lifepillar/vim-solarized8'
 Plug 'bluz71/vim-moonfly-colors'
 Plug 'danilo-augusto/vim-afterglow'
 Plug 'nightsense/seabird'
 Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
+
+" Plug 'ncm2/float-preview.nvim'
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+let g:deoplete#enable_at_startup = 1
 
 if has('nvim')
   " vim-test setup
@@ -208,6 +219,14 @@ nmap <silent> tb<C-n> :w<CR>:TestNearest -strategy=dispatch_background<CR>
 nmap <silent> tb<C-f> :w<CR>:TestFile -strategy=dispatch_background<CR>
 nmap <silent> tb<C-l> :w<CR>:TestLast -strategy=dispatch_background<CR>
 
+let g:test#ruby#rspec#executable = $HOME.'/.rbenv/shims/bundle exec spring rspec'
+" let g:test#ruby#rspec#executable = 'cd ~/opallabs/cabochon && ~/.yarn/bin/yarn docker:rails:run rspec'
+
+let g:test#ruby#rspec#options = {
+  \ 'nearest': '--format documentation',
+  \ 'file':    '--format documentation',
+\}
+
 noremap <C-h> <C-w>h
 noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
@@ -268,7 +287,10 @@ endif
 " colorscheme solarized
 " colorscheme solarized8_flat
 " colorscheme codedark
-colorscheme afterglow
+" colorscheme afterglow
+" colorscheme gruvbox
+" let g:gruvbox_contrast_dark = "dark"
+colorscheme flatlandia
 
 let g:solarized_termcolors=256
 " let g:solarized_contras="high"
@@ -281,7 +303,7 @@ let g:Powerline_symbols = 'fancy'
 " The following is a good way of setting fonts based on availability
 let os = substitute(system('uname'), "\n", "", "")
 if os == "Darwin" && !has("gui_vimr")
-  set guifont=Monaco:h15
+  set guifont=Hack-Regular:h16
 elseif os == "Linux"
   silent! set guifont=DejaVu\ Sans\ Mono\ 14
 endif
@@ -389,5 +411,76 @@ function! NERDCommenter_after()
   endif
 endfunction
 
+function! SaveSession()
+  let last_session_path = '~/.vim/last_session.vim'
+  if !empty(glob(last_session_path))
+    execute "mksession! " . last_session_path
+    echomsg "Session saved to: " . last_session_path
+  else
+    echoerr "session path not readable: " . last_session_path
+    execute "!touch " . last_session_path
+    echomsg "File should be created now. Try running this again"
+  endif
+endfunction
+
+function! LoadSession()
+  let last_session_path = '~/.vim/last_session.vim'
+  if !empty(glob(last_session_path))
+    execute "source " . last_session_path
+    echomsg "Session loaded from: " . last_session_path
+  else
+    echoerr "session path not readable: " . last_session_path
+  endif
+endfunction
+
 let g:indentLine_color_gui = '#3F3F3F'
 let g:indentLine_char = '┆'
+
+" ----- Deoplete --- START
+call deoplete#custom#option({
+\ 'auto_complete_delay': 200,
+\ 'smart_case': v:true,
+\ 'max_list': 100,
+\ })
+
+function! s:check_back_space() abort "{{{
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction"}}}
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ deoplete#manual_complete()
+" ----- Deoplete --- END
+
+" uses floating window for auto-complete docs
+let g:float_preview#docked = 0
+let g:float_preview#max_width = 60
+let g:float_preview#max_height = 15
+
+" ----- Ale --- START
+let g:ale_linters = {
+\   'elixir': ['elixir-ls', 'credo'],
+\   'ruby': ['rubocop'],
+\}
+let g:ale_fixers = {
+\   'elixir': ['mix_format', 'trim_whitespace'],
+\}
+
+let g:ale_elixir_elixir_ls_release=$HOME.'/source/elixir-ls/release'
+let g:ale_elixir_credo_strict = 1
+let g:ale_linters_explicit = 1
+let g:ale_fix_on_save = 1
+let g:ale_lint_on_save = 1
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_text_changed = 'never'
+highlight ALEErrorSign ctermbg=NONE ctermfg=red
+highlight ALEWarningSign ctermbg=NONE ctermfg=yellow
+nmap <silent> <Leader>ad :ALEGoToDefinition<CR>
+nmap <silent> <Leader>adv :ALEGoToDefinitionInVSplit<CR>
+nmap <silent> <Leader>ads :ALEGoToDefinitionInSplit<CR>
+nmap <silent> <Leader>ah :ALEHover<CR>
+nmap <silent> <Leader>ar :ALEFindReferences<CR>
+" ----- Ale --- END
