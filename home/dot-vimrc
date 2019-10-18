@@ -58,8 +58,8 @@ Plug 'nightsense/seabird'
 Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
 
-" Plug 'ncm2/float-preview.nvim'
 if has('nvim')
+  Plug 'ncm2/float-preview.nvim'
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
   Plug 'Shougo/deoplete.nvim'
