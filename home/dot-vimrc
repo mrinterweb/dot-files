@@ -62,14 +62,12 @@ Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
 
 if has('nvim')
-  Plug 'ncm2/float-preview.nvim'
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  " Plug 'ncm2/float-preview.nvim'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 else
-  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
-let g:deoplete#enable_at_startup = 1
 
 if has('nvim')
   " vim-test setup
@@ -356,6 +354,9 @@ endif
 map <Leader>n :NERDTreeToggle<CR>
 " map <Leader>t :CommandT<CR>
 map <Leader>mt :tabnew<CR>
+map <Leader>tt :tabnew<CR>
+map <Leader>tn :tabnext<CR>
+map <Leader>tp :tabprevious<CR>
 
 " let g:ctrlp_custom_ignore = {
 "       \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
@@ -432,22 +433,6 @@ endfunction
 let g:indentLine_color_gui = '#3F3F3F'
 let g:indentLine_char = '┆'
 
-" ----- Deoplete --- START
-call deoplete#custom#option({
-\ 'auto_complete_delay': 200,
-\ 'smart_case': v:true,
-\ 'max_list': 100,
-\ })
-
-function! s:check_back_space() abort "{{{
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~ '\s'
-endfunction"}}}
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ deoplete#manual_complete()
-" ----- Deoplete --- END
 
 " uses floating window for auto-complete docs
 let g:float_preview#docked = 1
@@ -491,3 +476,9 @@ nnoremap <c-p> :Clap files<cr>
 nnoremap <Leader>/ :Clap blines<cr>
 nnoremap <Leader>com :Clap commits<cr>
 nnoremap <Leader>cg :Clap grep<cr>
+
+" ----- CoC --- START
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" ----- CoC --- END
