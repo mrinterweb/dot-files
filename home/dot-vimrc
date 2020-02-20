@@ -17,18 +17,20 @@ Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rbenv'
 Plug 'vim-ruby/vim-ruby'
 
-Plug 'junegunn/fzf', { 'do': './install --bin' }
-Plug 'junegunn/fzf.vim'
-let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --threads=1'
-nnoremap <c-p> :FZF<cr>
+" Plug 'junegunn/fzf', { 'do': './install --bin' }
+" Plug 'junegunn/fzf.vim'
+" let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --threads=1'
+" nnoremap <c-p> :FZF<cr>
+Plug 'liuchengxu/vim-clap', { 'do': function('clap#helper#build_all') }
 
 " Plug 'mrinterweb/vim-visual-surround.git'
 Plug 'SirVer/UltiSnips'
+Plug 'honza/vim-snippets'
+
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'danro/rename.vim'
 Plug 'elixir-lang/vim-elixir'
 Plug 'heavenshell/vim-jsdoc'
-Plug 'honza/vim-snippets'
 Plug 'junegunn/vim-easy-align'
 Plug 'majutsushi/tagbar'
 Plug 'maksimr/vim-jsbeautify'
@@ -49,6 +51,7 @@ Plug 'Yggdroot/indentLine'
 Plug 'janko/vim-test'
 Plug 'tpope/vim-dispatch'
 Plug 'Valloric/ListToggle'
+Plug 'mattn/emmet-vim'
 
 " --- Colors --- START
 Plug 'flazz/vim-colorschemes'
@@ -59,15 +62,13 @@ Plug 'nightsense/seabird'
 Plug 'tomasiser/vim-code-dark'
 " --- Colors --- END
 
-" Plug 'ncm2/float-preview.nvim'
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  " Plug 'ncm2/float-preview.nvim'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 else
-  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
-let g:deoplete#enable_at_startup = 1
 
 if has('nvim')
   " vim-test setup
@@ -181,8 +182,8 @@ set expandtab
 " Always display the status line
 set laststatus=2
 
-" \ is the leader character
-let mapleader = ","
+" space is the leader character
+let mapleader = " "
 
 " Fugative shortcuts
 map <Leader>gs :Gstatus<CR>
@@ -197,12 +198,8 @@ map <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
 " Opens a tab edit command with the path of the currently edited file filled in
 " Normal mode: <Leader>t
 map <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
-
-" Inserts the path of the currently edited file into a command
-" Command mode: Ctrl+P
-cmap <C-P> <C-R>=expand("%:p:h") . "/" <CR>
-
-nnoremap <leader>. :CtrlPTag<cr>
+map <Leader>] :tabnext<CR>
+map <Leader>[ :tabprevious<CR>
 
 " vim-test
 " map <Leader>tn :w<CR>:TestNearest<CR>
@@ -319,9 +316,6 @@ set numberwidth=4
 autocmd InsertEnter * :set number
 autocmd InsertLeave * :set relativenumber
 
-" Snippets are activated by Shift+Tab
-let g:snippetsEmu_key = "<S-Tab>"
-
 " Tab completion options
 " (only complete to the longest unambiguous match, and show a menu)
 set completeopt=longest,menu
@@ -363,6 +357,9 @@ endif
 map <Leader>n :NERDTreeToggle<CR>
 " map <Leader>t :CommandT<CR>
 map <Leader>mt :tabnew<CR>
+map <Leader>tt :tabnew<CR>
+map <Leader>tn :tabnext<CR>
+map <Leader>tp :tabprevious<CR>
 
 " let g:ctrlp_custom_ignore = {
 "       \ 'dir': '\v\/(vendor|tmp|public|log|bin|bower_components|node_modules)'
@@ -386,6 +383,8 @@ endif
 
 " UltiSnips triggering
 let g:UltiSnipsExpandTrigger='<C-e>'
+let g:UltiSnipsSnippetsDir=$HOME.'/.vim/UltiSnips'
+let g:UltiSnipsEditSplit='vertical'
 
 " Add spaces after comment delimiters by default
 let g:NERDSpaceDelims = 1
@@ -439,37 +438,26 @@ endfunction
 let g:indentLine_color_gui = '#3F3F3F'
 let g:indentLine_char = '┆'
 
-" ----- Deoplete --- START
-call deoplete#custom#option({
-\ 'auto_complete_delay': 200,
-\ 'smart_case': v:true,
-\ 'max_list': 100,
-\ })
-
-function! s:check_back_space() abort "{{{
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~ '\s'
-endfunction"}}}
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ deoplete#manual_complete()
-" ----- Deoplete --- END
 
 " uses floating window for auto-complete docs
-let g:float_preview#docked = 0
-let g:float_preview#max_width = 60
-let g:float_preview#max_height = 15
+let g:float_preview#docked = 1
 
 " ----- Ale --- START
 let g:ale_linters = {
 \   'elixir': ['elixir-ls', 'credo'],
 \   'ruby': ['rubocop'],
+\   'rust': ['rustc', 'rls'],
 \}
 let g:ale_fixers = {
-\   'elixir': ['mix_format', 'trim_whitespace'],
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'elixir': ['mix_format'],
+\   'rust': ['rustfmt'],
 \}
 
+" Elixir-ls needs to be downloaded and compiled from source.
+" This worked last time:
+" mkdir ~/source && cd ~/source && git clone git clone https://github.com/JakeBecker/elixir-ls.git && cd elixir-ls
+" mix deps.get && mix compile && mix elixir_ls.release -o release
 let g:ale_elixir_elixir_ls_release=$HOME.'/source/elixir-ls/release'
 let g:ale_elixir_credo_strict = 1
 let g:ale_linters_explicit = 1
@@ -479,6 +467,7 @@ let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
 let g:ale_lint_on_enter = 0
 let g:ale_lint_on_text_changed = 'never'
+let g:ale_rust_rustc_options = '--emit metadata'
 highlight ALEErrorSign ctermbg=NONE ctermfg=red
 highlight ALEWarningSign ctermbg=NONE ctermfg=yellow
 nmap <silent> <Leader>ad :ALEGoToDefinition<CR>
@@ -487,3 +476,11 @@ nmap <silent> <Leader>ads :ALEGoToDefinitionInSplit<CR>
 nmap <silent> <Leader>ah :ALEHover<CR>
 nmap <silent> <Leader>ar :ALEFindReferences<CR>
 " ----- Ale --- END
+
+nnoremap <c-p> :Clap files<cr>
+nnoremap <Leader>/ :Clap blines<cr>
+nnoremap <Leader>com :Clap commits<cr>
+nnoremap <Leader>cg :Clap grep<cr>
+
+" ----- CoC --- START
+" ----- CoC --- END
