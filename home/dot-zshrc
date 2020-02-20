@@ -123,6 +123,7 @@ alias awesome-me="cd ~/opallabs/awesome-opal/smccleary"
 declare -a paths=("/Applications/VimR.app/Contents/Resources"
                  "$HOME/opallabs/cabochon/node_modules/.bin"
                  "$HOME/.config/yarn/global/node_modules/.bin"
+                 "$HOME/.cargo/bin"
                  "$HOME/.rbenv/bin"
                  "$HOME/opallabs/awesome-opal/smccleary/docker-neovim")
 for dir in "${paths[@]}"; do
