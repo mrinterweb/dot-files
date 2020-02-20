@@ -20,7 +20,7 @@ Plug 'vim-ruby/vim-ruby'
 " Plug '/usr/local/opt/fzf'
 " let $FZF_DEFAULT_COMMAND = 'rg --files --threads=1'
 " nnoremap <c-p> :FZF<cr>
-Plug 'liuchengxu/vim-clap'
+Plug 'liuchengxu/vim-clap', { 'do': function('clap#helper#build_all') }
 
 " Plug 'mrinterweb/vim-visual-surround.git'
 Plug 'SirVer/UltiSnips'
@@ -197,6 +197,8 @@ map <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
 " Opens a tab edit command with the path of the currently edited file filled in
 " Normal mode: <Leader>t
 map <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
+map <Leader>] :tabnext<CR>
+map <Leader>[ :tabprevious<CR>
 
 " vim-test
 " map <Leader>tn :w<CR>:TestNearest<CR>
@@ -478,7 +480,4 @@ nnoremap <Leader>com :Clap commits<cr>
 nnoremap <Leader>cg :Clap grep<cr>
 
 " ----- CoC --- START
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 " ----- CoC --- END
