@@ -1,4 +1,4 @@
-unalias run-help
+unalias run-help 2>/dev/null
 autoload run-help
 HELPDIR=/usr/local/share/zsh/help
 
@@ -14,12 +14,20 @@ export ZSH=$HOME/.oh-my-zsh
 # To install custom spaceship theme:
 # git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
 # ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
-ZSH_THEME="spaceship"
-SPACESHIP_PROMPT_ADD_NEWLINE=false
-SPACESHIP_PROMPT_SEPARATE_LINE=false
-SPACESHIP_RUBY_SHOW=false
-SPACESHIP_NODE_SHOW=false
-SPACESHIP_PACKAGE_SHOW=false
+# ZSH_THEME="robbyrussell"
+if [ 1 = 0 ] && [ -f ~/.oh-my-zsh/themes/agnoster-sean.zsh-theme ]; then
+  ZSH_THEME="agnoster-sean"
+  # For agnoster theme:
+  export DEFAULT_USER="seanmccleary"
+else
+  ZSH_THEME="robbyrussell"
+fi
+
+# SPACESHIP_PROMPT_ADD_NEWLINE=false
+# SPACESHIP_PROMPT_SEPARATE_LINE=false
+# SPACESHIP_RUBY_SHOW=false
+# SPACESHIP_NODE_SHOW=false
+# SPACESHIP_PACKAGE_SHOW=false
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -59,22 +67,71 @@ SPACESHIP_PACKAGE_SHOW=false
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git gitfast bundler history-substring-search)
+plugins=(git gitfast bundler history-substring-search mix docker)
 
 source $ZSH/oh-my-zsh.sh
 
-if [[ -r ~/.profile ]]; then
-  source ~/.profile
-fi
-
-source $ZSH/plugins/history-substring-search/history-substring-search.zsh
-
 export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
-
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+[ -d $HOME/scripts ] && export PATH="${HOME}/scripts:$PATH"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
-export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
+### Sourcing
+# Add the following line to use docker
+# source ~/.opal.sh
+declare -a sources=("$HOME/.profile"
+                    "$HOME/.secrets"
+                    "$HOME/.work-settings"
+                    "$ZSH/plugins/history-substring-search/history-substring-search.zsh"
+                    "$HOME/source/zsh-git-cal-status-cpp/gitstatus_zshrc.sh"
+                    "$HOME/.fzf.zsh")
+for s in "${sources[@]}"; do
+  [ -f $s ] && source $s
+done
+
+# For vi line editor:
+# bindkey -v
+
+export VISUAL=nvim
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+# # # OPAL SECTION - DO NOT REMOVE THESE LINES # # #
+# Opal setup variables
+export PATH="node_modules/.bin:$PATH"
+export AWS_REGION=us-west-2
+
+# asdf
+# if homebrew command and the homebrew directory exist
+if [ -x "$(command -v brew)" ] && [ -d $(brew --prefix asdf) ]; then
+  . $(brew --prefix asdf)/asdf.sh
+  . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+elif [ -d $HOME/.asdf ]; then
+  . $HOME/.asdf/asdf.sh
+  . $HOME/.asdf/completions/asdf.bash
+fi
+
+
+alias gs="git status"
+alias monolith-container-cmd="docker ps | grep 'opal_monolith\.' | awk '{print $1}' | head -n 1"
+alias monolith-logs="docker logs -f \$(monolith-container-cmd)"
+alias docker-wtf="docker stats --no-stream --format \"table {{.Name}}\t{{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\" | sort -k 3 -n"
+alias awesome-me="cd ~/opallabs/awesome-opal/smccleary"
+# # # OPAL SECTION - DO NOT REMOVE THESE LINES # # #
+
+# node
+declare -a paths=("/Applications/VimR.app/Contents/Resources"
+                 "$HOME/opallabs/cabochon/node_modules/.bin"
+                 "$HOME/.config/yarn/global/node_modules/.bin"
+                 "$HOME/.rbenv/bin"
+                 "$HOME/opallabs/awesome-opal/smccleary/docker-neovim")
+for dir in "${paths[@]}"; do
+  [ -d $dir ] && export PATH=$PATH:$dir
+done
+
+# ruby
+[ -x "$(command -v rbenv)" ] && eval "$(rbenv init -)"
+
+# this setting makes the monolith rails app log more normally
+export MONOLITH_LOGGING_STANDARD_RAILS=true
+export LOG_LEVEL=debug
