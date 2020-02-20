@@ -17,7 +17,8 @@ Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rbenv'
 Plug 'vim-ruby/vim-ruby'
 
-Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf', { 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
 let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --threads=1'
 nnoremap <c-p> :FZF<cr>
 
@@ -377,6 +378,8 @@ endif
 
 if filereadable('/usr/local/bin/python3')
   let g:python3_host_prog = '/usr/local/bin/python3'
+elseif filereadable('/usr/bin/python3')
+  let g:python3_host_prog = '/usr/bin/python3'
 else
   echo "No python3 found"
 endif
