@@ -21,7 +21,7 @@ Plug 'vim-ruby/vim-ruby'
 " Plug 'junegunn/fzf.vim'
 " let $FZF_DEFAULT_COMMAND = 'rg --files --ignore-vcs --threads=1'
 " nnoremap <c-p> :FZF<cr>
-Plug 'liuchengxu/vim-clap', { 'do': function('clap#helper#build_all') }
+Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
 
 " Plug 'mrinterweb/vim-visual-surround.git'
 Plug 'SirVer/UltiSnips'
