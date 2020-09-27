@@ -85,7 +85,9 @@ declare -a sources=("$HOME/.profile"
                     "$HOME/.work-settings"
                     "$ZSH/plugins/history-substring-search/history-substring-search.zsh"
                     "$HOME/source/zsh-git-cal-status-cpp/gitstatus_zshrc.sh"
-                    "$HOME/.fzf.zsh")
+                    "$HOME/.fzf.zsh"
+                    "$HOME/.shell_functions"
+                  )
 for s in "${sources[@]}"; do
   [ -f $s ] && source $s
 done
@@ -136,3 +138,4 @@ done
 # this setting makes the monolith rails app log more normally
 export MONOLITH_LOGGING_STANDARD_RAILS=true
 export LOG_LEVEL=debug
+export GPG_TTY=$(tty)
