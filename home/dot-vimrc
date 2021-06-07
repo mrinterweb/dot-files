@@ -365,6 +365,7 @@ endif
 
 " map <Leader>w :call OpenURL()<CR>
 map <Leader>n :NERDTreeToggle<CR>
+map <Leader>b :NERDTreeFind<CR>
 " map <Leader>t :CommandT<CR>
 map <Leader>mt :tabnew<CR>
 map <Leader>tt :tabnew<CR>
@@ -505,6 +506,14 @@ endfunction
 
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 nnoremap <Leader>gp :RG<cr>
+
+" ----- vim-easy-algin --- START
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+" ----- vim-easy-algin --- END
 
 " ----- vim-json --- START
 let g:vim_json_syntax_conceal = 0
