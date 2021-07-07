@@ -43,8 +43,14 @@ module Installer
           puts diff
         end
       else
-        %x(ln -s #{file} #{target})
-        puts green "  linked #{target}"
+        target_path = File.dirname(target)
+        FileUtils.mkdir_p(target_path) unless File.exist?(target_path)
+
+        if FileUtils.symlink(file, target)
+          puts green "  linked #{target}"
+        else
+          puts red "  Symlinking failed for: #{file} -> #{target}"
+        end
       end
     end
   end
