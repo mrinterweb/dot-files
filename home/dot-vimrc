@@ -56,6 +56,12 @@ Plug 'Valloric/ListToggle'
 Plug 'mattn/emmet-vim'
 Plug 'itchyny/lightline.vim'
 Plug 'elzr/vim-json'
+Plug 'fatih/vim-go'
+
+" Telescope related packages
+" Plug 'nvim-lua/popup.nvim'
+" Plug 'nvim-lua/plenary.nvim'
+" Plug 'nvim-telescope/telescope.nvim'
 
 " --- Colors --- START
 Plug 'flazz/vim-colorschemes'
@@ -89,6 +95,9 @@ endif
 call plug#end()
 
 filetype plugin indent on     " required!
+
+" Include CoC config
+runtime config/coc.vim
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
@@ -368,17 +377,21 @@ map <Leader>tp :tabprevious<CR>
 "       \ }
 
 if filereadable('/usr/local/bin/python')
-  let g:python2_host_prog = '/usr/local/bin/python'
+  let g:python_host_prog = '/usr/local/bin/python'
+elseif filereadable('/opt/homebrew/bin/python')
+  let g:python_host_prog = '/opt/homebrew/bin/python'
 elseif filereadable('/usr/bin/python')
-  let g:python2_host_prog = '/usr/bin/python'
+  let g:python_host_prog = '/usr/bin/python'
 else
-  echo "No python2 found"
+  echo 'No python2 found'
 endif
 
 if filereadable('/usr/local/bin/python3')
   let g:python3_host_prog = '/usr/local/bin/python3'
-elseif filereadable('/usr/bin/python3')
-  let g:python3_host_prog = '/usr/bin/python3'
+elseif filereadable('/opt/homebrew/bin/python3')
+  let g:python3_host_prog = '/opt/homebrew/bin/python3'
+elseif filereadable('/usr/bin/python')
+  let g:python3_host_prog = '/usr/bin/python'
 else
   echo "No python3 found"
 endif
@@ -450,11 +463,12 @@ let g:float_preview#docked = 1
 " \   'ruby': ['rubocop'],
 " \   'rust': ['rustc', 'rls'],
 " \}
-" let g:ale_fixers = {
-" \   '*': ['remove_trailing_lines', 'trim_whitespace'],
-" \   'elixir': ['mix_format'],
-" \   'rust': ['rustfmt'],
-" \}
+let g:ale_fixers = {
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'elixir': ['mix_format'],
+\   'rust': ['rustfmt'],
+\   'go': ['gofmt'],
+\}
 "
 " " Elixir-ls needs to be downloaded and compiled from source.
 " " This worked last time:
@@ -696,3 +710,12 @@ let g:lightline = {
       \   'coccurrentfunction': "%{get(b:, \'coc_current_function\', '')}"
       \ },
       \ }
+
+
+" ----- Telescope --- START
+" Find files using Telescope command-line sugar.
+" nnoremap <leader>ff <cmd>Telescope find_files<cr>
+" nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+" nnoremap <leader>fb <cmd>Telescope buffers<cr>
+" nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+" ----- Telescope --- END
