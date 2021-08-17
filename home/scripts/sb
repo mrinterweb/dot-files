@@ -1,12 +1,42 @@
 #! /usr/bin/env ruby
 # Switch to git branch by matching part of a name
+begin
+  require 'tty-prompt'
+  require 'tty-logger'
+rescue LoadError
+  puts 'Install the following gems to use this tool'
+  puts 'gem install tty-prompt tty-logger'
+  exit 0
+end
 
-results = `git branch -l | grep -i #{ARGV[0]} | cut -f 1`
-branchNames = results.split("\n").map { |bn| bn.sub(/^\*/, '').strip }
+logger = TTY::Logger.new
 
-if branchNames.length == 1
-  `git checkout #{branchNames.first}`
+search_term = ARGV[0]
+
+def prep_branch_results(results)
+  results.split("\n").map { |bn| bn.sub(/^\*/, '').strip }
+end
+
+branch_names = prep_branch_results(`git branch -l | grep -i #{search_term} | cut -f 1`)
+
+if branch_names.length == 1
+  `git checkout #{branch_names.first}`
+elsif branch_names.length > 1
+  logger.warn 'More than one branch name matched'
+  puts branch_names.join("\n")
 else
-  puts 'More than one branch name matched'
-  puts branchNames.join("\n")
+  logger.warn 'No local branches with that name were found'
+  remote_branches = prep_branch_results(`git branch -r | grep #{search_term} | cut -f 1`)
+
+  prompt = TTY::Prompt.new
+  selection = prompt.select('Choose remote branch', remote_branches << 'none').delete_prefix('origin/')
+
+  if selection == 'none'
+    logger.info 'Cancelling selection'
+    exit 0
+  end
+
+  puts "switching to branch: #{selection}"
+  `git checkout #{selection}`
+  logger.success "Switched to remote branch: #{selection}"
 end
