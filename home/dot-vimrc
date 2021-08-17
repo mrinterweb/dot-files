@@ -47,7 +47,7 @@ Plug 'tpope/vim-surround'
 Plug 'dense-analysis/ale'
 Plug 'kchmck/vim-coffee-script'
 " Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
-"
+
 Plug 'jreybert/vimagit'
 Plug 'Yggdroot/indentLine'
 Plug 'janko/vim-test'
@@ -69,6 +69,7 @@ Plug 'tomasiser/vim-code-dark'
 if has('nvim')
   " Plug 'ncm2/float-preview.nvim'
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  " Plug 'rmagatti/auto-session'
 else
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
@@ -107,7 +108,6 @@ set noswapfile
 set nohlsearch " Turns off search highlighting
 set number
 
-nnoremap <Leader>r :set relativenumber!<CR>
 nnoremap <F4> :set hlsearch!<CR>
 nnoremap <F6> :set spell! spelllang=en_us<CR>
 
@@ -188,6 +188,8 @@ set laststatus=2
 " space is the leader character
 let mapleader = " "
 
+nnoremap <Leader>r :tabdo set relativenumber!<CR>
+xnoremap <Leader>c "*y<Esc>
 " Fugative shortcuts
 map <Leader>gs :Gstatus<CR>
 
@@ -215,19 +217,18 @@ nmap <silent> t<C-g> :TestVisit<CR>
 nmap <silent> tb<C-n> :w<CR>:TestNearest -strategy=dispatch_background<CR>
 nmap <silent> tb<C-f> :w<CR>:TestFile -strategy=dispatch_background<CR>
 nmap <silent> tb<C-l> :w<CR>:TestLast -strategy=dispatch_background<CR>
+nmap <silent> r<C-f> :!rubocop -A %<CR>
 
-function! DockerTransform(cmd) abort
-  " return 'docker-compose run web '.a:cmd
-  return './bin/docker-proxy -v '.a:cmd
-endfunction
+" function! DockerTransform(cmd) abort
+"   return './bin/docker-proxy -v '.a:cmd
+" endfunction
 
-let g:test#custom_transformations = {'docker': function('DockerTransform')}
-let g:test#transformation = 'docker'
+" let g:test#custom_transformations = {'docker': function('DockerTransform')}
+" let g:test#transformation = 'docker'
 
-let g:test#ruby#rspec#executable = 'rspec'
+let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
 
 " let g:test#ruby#rspec#executable = $HOME.'/.rbenv/shims/bundle exec spring rspec'
-" let g:test#ruby#rspec#executable = 'cd ~/opallabs/cabochon && ~/.yarn/bin/yarn docker:rails:run rspec'
 
 let g:test#ruby#rspec#options = {
   \ 'nearest': '--format documentation',
@@ -258,10 +259,6 @@ inoremap jj <Esc>
 inoremap jk <Esc>
 inoremap kj <Esc>
 inoremap kk <Esc>:w<CR>
-
-" Cool tab completion stuff
-set wildmenu
-set wildmode=list:longest,full
 
 " Local config
 if filereadable(".vimrc.local")
@@ -325,12 +322,6 @@ set lazyredraw
 set numberwidth=4
 autocmd InsertEnter * :set number
 autocmd InsertLeave * :set relativenumber
-
-" Tab completion options
-" (only complete to the longest unambiguous match, and show a menu)
-set completeopt=longest,menu
-set wildmode=list:longest,list:full
-set complete=.,t
 
 " case only matters with mixed case expressions
 set ignorecase
@@ -493,7 +484,8 @@ let g:float_preview#docked = 1
 " If in git directory, show only files that are committed, staged, or unstaged
 " else use regular :Files
 nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':Files' : ':GFiles --exclude-standard --others --cached')."\<cr>"
-nnoremap <c-;> :Windows<cr>
+nnoremap <Leader>; :Windows<cr>
+nnoremap <c-g> :Rg<cr>
 nnoremap <Leader>gf :Lines<cr>
 
 function! RipgrepFzf(query, fullscreen)
@@ -530,25 +522,6 @@ let g:vim_json_syntax_conceal = 0
 " ----- CoC --- START
 " Do not automatically show autocomplete
 let b:coc_suggest_disable = 1
-nnoremap <silent> K :call CocAction('doHover')<CR>
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use <C-l> for trigger snippet expand.
-imap <C-l> <Plug>(coc-snippets-expand)
-
-if isdirectory('Gemfile')
-  let g:coc_global_extensions += ['coc-solargraph']
-endif
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
-  let g:coc_global_extensions += ['coc-prettier']
-endif
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
-  let g:coc_global_extensions += ['coc-eslint']
-endif
 
 " TextEdit might fail if hidden is not set.
 set hidden
@@ -575,15 +548,6 @@ if has("patch-8.1.1564")
 else
   set signcolumn=yes
 endif
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
   let col = col('.') - 1
@@ -614,8 +578,10 @@ nnoremap <silent> K :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
   else
-    call CocAction('doHover')
+    execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
 
@@ -658,8 +624,18 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
 " Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
+" Requires 'textDocument/selectionRange' support of language server.
 nmap <silent> <C-s> <Plug>(coc-range-select)
 xmap <silent> <C-s> <Plug>(coc-range-select)
 
@@ -675,7 +651,7 @@ command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organize
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
-" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings for CoCList
 " Show all diagnostics.
@@ -695,6 +671,17 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 " ----- CoC --- END
+
+" ----- CoC Customizations --- START
+if isdirectory('Gemfile')
+  let g:coc_global_extensions += ['coc-solargraph']
+endif
+
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+" ----- CoC Customizations --- END
+
 let g:lightline = {
       \ 'colorscheme': 'powerline',
       \ 'active': {
