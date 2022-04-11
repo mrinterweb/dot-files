@@ -84,6 +84,7 @@ Plug 'hrsh7th/nvim-cmp'
 
 Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 " --- cmp - completion - END
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 if has('nvim')
   " vim-test setup
@@ -639,4 +640,10 @@ lua <<EOF
   require('lspconfig')['tsserver'].setup {
     capabilities = capabilities
   }
+EOF
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = { "ruby", "javascript", "json", "yaml", "regex", "css", "scss", "html", "markdown", "vim", "lua"  }
+}
 EOF
