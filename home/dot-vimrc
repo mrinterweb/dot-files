@@ -70,6 +70,7 @@ Plug 'bluz71/vim-moonfly-colors'
 Plug 'danilo-augusto/vim-afterglow'
 Plug 'nightsense/seabird'
 Plug 'tomasiser/vim-code-dark'
+Plug 'EdenEast/nightfox.nvim'
 " --- Colors --- END
 
 if has('nvim')
@@ -200,7 +201,7 @@ let mapleader = " "
 nnoremap <Leader>r :tabdo set relativenumber!<CR>
 xnoremap <Leader>c "*y<Esc>
 " Fugative shortcuts
-map <Leader>gs :Gstatus<CR>
+map <Leader>gs :Git<CR>
 
 " Hide search highlighting
 map <Leader>h :set invhls <CR>
@@ -302,9 +303,8 @@ endif
 " colorscheme solarized8_flat
 " colorscheme codedark
 colorscheme afterglow
-" colorscheme gruvbox
-" let g:gruvbox_contrast_dark = "dark"
-" colorscheme flatlandia
+" colorscheme nightfox
+" v:lua.require('nightfox').set()
 
 let g:solarized_termcolors=256
 " let g:solarized_contras="high"
