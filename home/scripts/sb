@@ -1,6 +1,8 @@
 #! /usr/bin/env ruby
 # Switch to git branch by matching part of a name
 
+require 'optparse'
+
 begin
   require 'tty-prompt'
   require 'tty-logger'
@@ -8,6 +10,60 @@ rescue LoadError
   puts 'Install the following gems to use this tool'
   puts 'gem install tty-prompt tty-logger'
   exit 0
+end
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.on('--delete', 'Deletes history') do
+    options[:delete_history] = true
+  end
+end.parse!
+
+# SQLite3 database to keep track of recent branches
+class BranchHistory
+  require 'sqlite3'
+  include Singleton
+
+  FILE_PATH = File.join(Dir.home, 'recent-branches.db')
+
+  attr_reader :db
+
+  def initialize
+    @db = SQLite3::Database.new FILE_PATH
+    create_table
+  end
+
+  def self.recent_branches(limit: 10)
+    sql = <<~SQL
+      SELECT distinct(name) FROM recent_branches WHERE name != ? ORDER BY last_accessed DESC LIMIT ?
+    SQL
+    instance.db.execute(sql, [instance.current_branch, limit]).flatten
+  end
+
+  def self.add_branch(branch_name)
+    instance.db.execute('INSERT INTO recent_branches (name, last_accessed) VALUES (?, ?)', [branch_name, Time.now.to_i])
+  end
+
+  def self.purge_history!
+    instance.db.execute('DROP TABLE recent_branches')
+  end
+
+  def current_branch
+    `git branch --show-current`.chomp
+  end
+
+  private
+
+  def create_table
+    db.execute <<~SQL
+      CREATE TABLE IF NOT EXISTS recent_branches(
+        name TEXT,
+        last_accessed INTEGER
+      );
+      CREATE INDEX recent_branches_branch_name ON recent_branches(name);
+    SQL
+  end
 end
 
 search_term = ARGV[0]
@@ -18,7 +74,17 @@ def prep_branch_results(results)
   results.split("\n").map { |bn| bn.sub(/^\*/, '').strip }
 end
 
-branch_names = prep_branch_results(`git branch -l | grep -i #{search_term} | cut -f 1`)
+if options[:delete_history]
+  BranchHistory.purge_history!
+  puts 'Removed branch history'
+  exit 0
+end
+
+branch_names = if search_term
+                 prep_branch_results(`git branch -l | grep -i #{search_term} | cut -f 1`)
+               else
+                 BranchHistory.recent_branches
+               end
 
 def select_branch(branches, branch_location)
   logger = TTY::Logger.new
@@ -29,10 +95,13 @@ def select_branch(branches, branch_location)
     exit 0
   end
   `git checkout #{selection}`
+
+  BranchHistory.add_branch(selection)
   logger.success "Switched to #{branch_location} branch: #{selection}"
 end
 
 if branch_names.length == 1
+  BranchHistory.add_branch(branch_names.first)
   `git checkout #{branch_names.first}`
 elsif branch_names.length > 1
   logger.warn 'More than one branch name matched'
