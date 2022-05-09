@@ -238,8 +238,8 @@ nmap <silent> r<C-f> :!rubocop -A %<CR>
 " let g:test#custom_transformations = {'docker': function('DockerTransform')}
 " let g:test#transformation = 'docker'
 
-" let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
-let g:test#ruby#rspec#executable = 'rspec --fail-fast=3'
+let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
+" let g:test#ruby#rspec#executable = 'bundle exec rspec --fail-fast=3'
 
 " let g:test#ruby#rspec#executable = $HOME.'/.rbenv/shims/bundle exec spring rspec'
 
@@ -513,6 +513,8 @@ nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':Files' : ':GFiles --excl
 nnoremap <Leader>; :Windows<cr>
 nnoremap <c-g> :Rg<cr>
 nnoremap <Leader>gf :Lines<cr>
+nnoremap <Leader>. :cn<cr>
+nnoremap <Leader>, :cp<cr>
 
 function! RipgrepFzf(query, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
