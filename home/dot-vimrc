@@ -49,7 +49,8 @@ Plug 'kchmck/vim-coffee-script'
 " Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
 
 Plug 'jreybert/vimagit'
-Plug 'Yggdroot/indentLine'
+" Plug 'Yggdroot/indentLine'
+Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'janko/vim-test'
 Plug 'tpope/vim-dispatch'
 Plug 'Valloric/ListToggle'
@@ -70,6 +71,8 @@ Plug 'bluz71/vim-moonfly-colors'
 Plug 'danilo-augusto/vim-afterglow'
 Plug 'nightsense/seabird'
 Plug 'tomasiser/vim-code-dark'
+Plug 'EdenEast/nightfox.nvim'
+Plug 'sainnhe/sonokai'
 " --- Colors --- END
 
 " --- cmp - completion - START
@@ -99,8 +102,6 @@ if has('nvim')
     \ 'file':    'neovim',
     \ 'suite':   'dispatch_background',
   \}
-
-  set termguicolors
 endif
 
 call plug#end()
@@ -208,7 +209,7 @@ let mapleader = " "
 nnoremap <Leader>r :tabdo set relativenumber!<CR>
 xnoremap <Leader>c "*y<Esc>
 " Fugative shortcuts
-map <Leader>gs :Gstatus<CR>
+map <Leader>gs :Git<CR>
 
 " Hide search highlighting
 map <Leader>h :set invhls <CR>
@@ -243,8 +244,8 @@ nmap <silent> r<C-f> :!rubocop -A %<CR>
 " let g:test#custom_transformations = {'docker': function('DockerTransform')}
 " let g:test#transformation = 'docker'
 
-" let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
-let g:test#ruby#rspec#executable = 'rspec --fail-fast=3'
+let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
+" let g:test#ruby#rspec#executable = 'bundle exec rspec --fail-fast=3'
 
 " let g:test#ruby#rspec#executable = $HOME.'/.rbenv/shims/bundle exec spring rspec'
 
@@ -301,6 +302,10 @@ else
   set grepprg=git\ grep\ -n
 endif
 
+if (has("termguicolors"))
+ set termguicolors
+endif
+
 " Color scheme
 " colorscheme molokai
 " colorscheme desert
@@ -310,10 +315,11 @@ endif
 " colorscheme solarized
 " colorscheme solarized8_flat
 " colorscheme codedark
-colorscheme afterglow
-" colorscheme gruvbox
-" let g:gruvbox_contrast_dark = "dark"
-" colorscheme flatlandia
+" colorscheme afterglow
+" colorscheme nightfox
+let g:sonokai_style = 'andromeda'
+let g:sonokai_better_performance = 1
+colorscheme sonokai
 
 let g:solarized_termcolors=256
 " let g:solarized_contras="high"
@@ -459,9 +465,12 @@ function! LoadSession()
   endif
 endfunction
 
-let g:indentLine_color_gui = '#3F3F3F'
-let g:indentLine_char = '┆'
-
+" let g:indentLine_color_gui = '#3F3F3F'
+let g:indentLine_char = '┊'
+let g:indentLine_color_gui = '#111111'
+let g:indentLine_bgcolor_term = 202
+let g:indentLine_bgcolor_gui = '#444444'
+let g:vim_json_conceal=0
 
 " uses floating window for auto-complete docs
 let g:float_preview#docked = 1
@@ -510,6 +519,8 @@ nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':Files' : ':GFiles --excl
 nnoremap <Leader>; :Windows<cr>
 nnoremap <c-g> :Rg<cr>
 nnoremap <Leader>gf :Lines<cr>
+nnoremap <Leader>. :cn<cr>
+nnoremap <Leader>, :cp<cr>
 
 function! RipgrepFzf(query, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
@@ -661,5 +672,58 @@ require("mason").setup()
 require("mason-lspconfig").setup()
 
 -- Configure language servers
-require("lspconfig").rust_analyzer.setup {}
+--require("lspconfig").rust_analyzer.setup {}
+EOF
+
+" indent-blankline config https://github.com/lukas-reineke/indent-blankline.nvim
+lua <<EOF
+vim.opt.list = true
+
+require("indent_blankline").setup {
+  show_current_context = true,
+  show_current_context_start = true,
+}
+EOF
+
+" Default mappings for LSP
+lua <<EOF
+-- Mappings.
+-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+local opts = { noremap=true, silent=true }
+vim.api.nvim_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+-- vim.api.nvim_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({ async = true })<CR>', opts)
+end
+
+-- Use a loop to conveniently call 'setup' on multiple servers and
+-- map buffer local keybindings when the language server attaches
+local servers = { 'solargraph', 'tsserver', 'rust' }
+for _, lsp in pairs(servers) do
+  require('lspconfig')[lsp].setup {
+    on_attach = on_attach
+  }
+end
 EOF

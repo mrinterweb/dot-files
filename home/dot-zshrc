@@ -113,7 +113,6 @@ elif [ -d $HOME/.asdf ]; then
   . $HOME/.asdf/completions/asdf.bash
 fi
 
-
 alias gs="git status"
 alias monolith-container-cmd="docker ps | grep 'opal_monolith\.' | awk '{print $1}' | head -n 1"
 alias monolith-logs="docker logs -f \$(monolith-container-cmd)"
@@ -139,3 +138,7 @@ done
 export MONOLITH_LOGGING_STANDARD_RAILS=true
 export LOG_LEVEL=debug
 export GPG_TTY=$(tty)
+
+if [ -f "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc" ]; then
+  source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+fi

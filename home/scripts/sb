@@ -1,42 +1,181 @@
 #! /usr/bin/env ruby
 # Switch to git branch by matching part of a name
+
+require 'optparse'
+
 begin
   require 'tty-prompt'
   require 'tty-logger'
+  require 'sqlite3'
 rescue LoadError
   puts 'Install the following gems to use this tool'
-  puts 'gem install tty-prompt tty-logger'
+  puts 'gem install tty-prompt tty-logger sqlite3'
   exit 0
 end
 
-logger = TTY::Logger.new
+options = {}
+
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: sb [options]"
+  opts.on('--delete', 'Deletes history') do
+    options[:delete_history] = true
+  end
+  opts.on('--inspect-history', 'Prints the recent_branches table') do
+    options[:inspect_history] = true
+  end
+  opts.on('-nNOTE', '--note=NOTE', 'Add a note for the current branch') do |note|
+    options[:note] = note
+  end
+end.parse!
+
+# SQLite3 database to keep track of recent branches
+class BranchHistory
+  include Singleton
+
+  Branch = Struct.new(:name, :last_accessed, :note)
+
+  FILE_PATH = File.join(Dir.home, 'recent-branches.db')
+
+  attr_reader :db
+
+  def initialize
+    @db = SQLite3::Database.new FILE_PATH
+    create_table
+  end
+
+  def self.recent_branches(limit: 10)
+    sql = <<~SQL
+      SELECT name, last_accessed, note FROM recent_branches WHERE name != ? ORDER BY last_accessed DESC LIMIT ?
+    SQL
+    instance.send :to_branches, instance.db.execute(sql, [instance.current_branch, limit])
+  end
+
+  def self.add_branch(branch_name)
+    sql = <<~SQL
+      INSERT INTO recent_branches (name, last_accessed) VALUES (?, ?)
+        ON CONFLICT DO UPDATE SET last_accessed=?
+    SQL
+    time = Time.now.to_i
+    instance.db.execute(sql, [branch_name, time, time])
+  end
+
+  def self.add_note(note, branch_name = nil)
+    branch_name ||= instance.current_branch
+    sql = <<~SQL
+      UPDATE recent_branches SET note = ? WHERE name = ?
+    SQL
+    instance.db.execute(sql, [note, branch_name])
+  end
+
+  def self.purge_history!
+    instance.db.execute('DROP TABLE recent_branches')
+  end
+
+  def self.inspect_history
+    instance.db.execute('SELECT * FROM recent_branches ORDER BY last_accessed DESC')
+  end
+
+  def current_branch
+    `git branch --show-current`.chomp
+  end
+
+  private
+
+  def create_table
+    return if table_exists?
+
+    logger.info 'Creating and indexing recent_branches'
+    db.execute <<~SQL
+      CREATE TABLE recent_branches(
+        name TEXT,
+        last_accessed INTEGER,
+        note TEXT
+      );
+    SQL
+    db.execute 'CREATE UNIQUE INDEX recent_branches_branch_name ON recent_branches(name);'
+    db.execute 'CREATE INDEX recent_branches_last_accessed ON recent_branches(last_accessed);'
+  end
+
+  def table_exists?
+    !db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", ['recent_branches']).empty?
+  end
+
+  def to_branches(rows)
+    rows.map { |r| Branch.new(*r) }
+  end
+end
 
 search_term = ARGV[0]
+
+logger = TTY::Logger.new
+
+
+@color = Pastel.new
 
 def prep_branch_results(results)
   results.split("\n").map { |bn| bn.sub(/^\*/, '').strip }
 end
 
-branch_names = prep_branch_results(`git branch -l | grep -i #{search_term} | cut -f 1`)
+if options[:delete_history]
+  BranchHistory.purge_history!
+  logger.success @color.green('Removed branch history')
+  exit 0
+end
 
-if branch_names.length == 1
-  `git checkout #{branch_names.first}`
-elsif branch_names.length > 1
-  logger.warn 'More than one branch name matched'
-  puts branch_names.join("\n")
-else
-  logger.warn 'No local branches with that name were found'
-  remote_branches = prep_branch_results(`git branch -r | grep #{search_term} | cut -f 1`)
+if options[:inspect_history]
+  rows = BranchHistory.inspect_history
+  require 'pp'
+  pp rows
+  exit 0
+end
 
+if options[:note]
+  BranchHistory.add_note options[:note]
+  logger.success @color.green('Note added')
+  exit 0
+end
+
+branches = if search_term
+             prep_branch_results(`git branch -l | grep -i #{search_term} | cut -f 1`)
+               .map { |bn| BranchHistory::Branch.new(bn) }
+           else
+             BranchHistory.recent_branches
+           end
+
+def select_branch(branches, branch_location)
+  logger = TTY::Logger.new
   prompt = TTY::Prompt.new
-  selection = prompt.select('Choose remote branch', remote_branches << 'none').delete_prefix('origin/')
 
+  choices = branches.each_with_object({}) do |branch, hash|
+    time = branch.last_accessed ? Time.at(branch.last_accessed).strftime('%y-%m-%d') : nil
+    note = branch.note ? @color.yellow(branch.note) : nil
+    key = [time, branch.name, note].compact.join(' -- ')
+    hash[key] = branch.name
+  end
+
+  selection = prompt.select("Choose #{branch_location} branch", choices.merge('none' => 'none'))
   if selection == 'none'
     logger.info 'Cancelling selection'
     exit 0
   end
-
-  puts "switching to branch: #{selection}"
   `git checkout #{selection}`
-  logger.success "Switched to remote branch: #{selection}"
+
+  BranchHistory.add_branch(selection)
+  logger.success "Switched to #{branch_location} branch: #{selection}"
+end
+
+if branches.length == 1
+  branch_name = branches.first&.name
+  BranchHistory.add_branch(branch_name)
+  `git checkout #{branch_name}`
+elsif branches.length > 1
+  logger.warn 'More than one branch name matched'
+
+  select_branch(branches, 'local')
+else
+  logger.warn 'No local branches with that name were found'
+  remote_branches = prep_branch_results(`git branch -r | grep #{search_term} | cut -f 1`)
+
+  select_branch(remote_branches, 'remote')
 end
