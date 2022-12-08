@@ -67,7 +67,7 @@ fi
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git gitfast bundler history-substring-search mix docker)
+plugins=(git gitfast bundler history-substring-search mix docker fzf)
 
 source $ZSH/oh-my-zsh.sh
 
