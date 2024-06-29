@@ -1,5 +1,4 @@
 require 'rake'
-require 'pry'
 
 module FancyPutter
 
@@ -32,7 +31,7 @@ module Installer
     files = `find #{PATH}/home -type f`.split("\n")
     files.each do |file|
       target = "#{HOME}/#{convert_dot_path(file)}"
-      if File.exists?(target)
+      if File.exist?(target)
         if File.symlink?(target)
           puts green  "  Already linked:             #{target}"
         else
