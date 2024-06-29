@@ -11,6 +11,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'tpope/vim-fugitive'
+Plug 'shumphrey/fugitive-gitlab.vim'
 Plug 'tpope/vim-rhubarb'
 Plug 'vim-scripts/tComment'
 Plug 'tpope/vim-rails'
@@ -26,7 +27,6 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 " Plug 'mrinterweb/vim-visual-surround.git'
-Plug 'SirVer/UltiSnips'
 Plug 'honza/vim-snippets'
 
 Plug 'cakebaker/scss-syntax.vim'
@@ -60,9 +60,8 @@ Plug 'elzr/vim-json'
 Plug 'fatih/vim-go'
 
 " Telescope related packages
-" Plug 'nvim-lua/popup.nvim'
-" Plug 'nvim-lua/plenary.nvim'
-" Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 
 " --- Colors --- START
 Plug 'flazz/vim-colorschemes'
@@ -76,12 +75,14 @@ Plug 'sainnhe/sonokai'
 " --- Colors --- END
 
 " --- cmp - completion - START
+Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 
+Plug 'SirVer/ultisnips'
 Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 " --- cmp - completion - END
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -247,11 +248,9 @@ nmap <silent> r<C-f> :!rubocop -A %<CR>
 let g:test#ruby#rspec#executable = 'zeus rspec --fail-fast=3'
 " let g:test#ruby#rspec#executable = 'bundle exec rspec --fail-fast=3'
 
-" let g:test#ruby#rspec#executable = $HOME.'/.rbenv/shims/bundle exec spring rspec'
-
 let g:test#ruby#rspec#options = {
   \ 'nearest': '--format documentation',
-  \ 'file':    '--format documentation',
+  \ 'file':    '--format documentation --order random',
 \}
 
 noremap <C-h> <C-w>h
@@ -515,12 +514,13 @@ let g:ale_fixers = {
 " fzf file fuzzy search that respects .gitignore
 " If in git directory, show only files that are committed, staged, or unstaged
 " else use regular :Files
-nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':Files' : ':GFiles --exclude-standard --others --cached')."\<cr>"
+" nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':Files' : ':GFiles --exclude-standard --others --cached')."\<cr>"
 nnoremap <Leader>; :Windows<cr>
 nnoremap <c-g> :Rg<cr>
 nnoremap <Leader>gf :Lines<cr>
 nnoremap <Leader>. :cn<cr>
 nnoremap <Leader>, :cp<cr>
+nnoremap <Leader>/ :BLines<cr>
 
 function! RipgrepFzf(query, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
@@ -566,11 +566,12 @@ let g:lightline = {
 
 
 " ----- Telescope --- START
-" Find files using Telescope command-line sugar.
-" nnoremap <leader>ff <cmd>Telescope find_files<cr>
-" nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-" nnoremap <leader>fb <cmd>Telescope buffers<cr>
-" nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fgr <cmd>Telescope live_grep search_dirs={"app/","lib/"}<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <C-p> <cmd>Telescope find_files<cr>
 " ----- Telescope --- END
 
 " ----- CMP - START
@@ -727,3 +728,5 @@ for _, lsp in pairs(servers) do
   }
 end
 EOF
+
+lua require('leap').add_default_mappings()
