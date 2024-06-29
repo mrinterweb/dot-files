@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+# This script will copy all the ruby files in the current directory to the clipboard
+# so you can paste them into the tokenization tool
+# This is helpful for working with AI tools
+
+require 'tempfile'
+
+def is_rails_dir?
+  File.exist?('Gemfile') && File.exist?('db/schema')
+end
+
+files = []
+
+if ARGV.empty? && is_rails_dir?
+  files = Dir.glob('app/**/*.rb')
+  files << 'Gemfile'
+  files << 'db/schema.rb'
+else
+  ARGV.each do |arg|
+    if arg =~ /\*/
+      files << Dir.glob(arg)
+    else
+      raise "File not found: #{arg}" unless File.exist?(arg)
+      raise "File is directory. Please use globbing syntax: #{arg}" if File.directory?(arg)
+
+      files << arg
+    end
+  end
+end
+
+files.flatten!
+
+if files.empty?
+  puts "Files empty. Please add some file args or run in a rails code base"
+  exit 1
+end
+
+out = Tempfile.new
+
+files.each do |f|
+  out.write("File >>>> #{f}\n")
+  out.write(File.read(f))
+  out.write("\n")
+end
+
+out.close
+`cat #{out.path} | pbcopy`
+
+# a token is 4 bytes
+tokens = File.size(out.path) / 4
+puts "Tokens: #{tokens}"
+out.unlink
