@@ -88,10 +88,21 @@ require("lazy").setup({
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-live-grep-args.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      'LukasPietzschmann/telescope-tabs',
     },
     config = function()
       local telescope = require("telescope")
-      telescope.setup()
+      telescope.setup({
+        pickers = {
+          buffers = {
+            mappings = {
+              i = {
+                ["<c-d>"] = "select_tab_drop", -- Map Enter to select_tab_drop
+              },
+            },
+          },
+        },
+      })
       telescope.load_extension("fzf")
       telescope.load_extension("live_grep_args")
 
@@ -104,15 +115,36 @@ require("lazy").setup({
       vim.keymap.set('n', '<leader>fr', '<cmd>Telescope lsp_references<cr>')
       vim.keymap.set('n', '<leader>fd', '<cmd>Telescope lsp_definitions<cr>')
       vim.keymap.set('n', '<leader>f ', '<cmd>Telescope resume<cr>')
+      vim.keymap.set('n', '<leader>\'', '<cmd>Telescope telescope-tabs list_tabs<cr>')
     end
   },
 
+  --{
+    --'LukasPietzschmann/telescope-tabs',
+    --config = function()
+      --require('telescope').load_extension 'telescope-tabs'
+      --require('telescope-tabs').setup {
+        ---- Your custom config :^)
+      --}
+    --end,
+    --dependencies = { 'nvim-telescope/telescope.nvim' },
+  --},
+
   -- Utility plugins
   "majutsushi/tagbar",
-  "preservim/nerdcommenter",
+  -- "preservim/nerdcommenter",
   "terryma/vim-multiple-cursors",
   "tpope/vim-endwise",
   "tpope/vim-surround",
+
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      mappings = {
+        basic = true,
+      }
+    }
+  },
 
   -- Testing
   {
@@ -156,41 +188,82 @@ require("lazy").setup({
   },
 
   -- LSP and completion
+  -- {
+  --   "neovim/nvim-lspconfig",
+  --   opts = {
+  --     servers = {
+  --       ruby_lsp = {
+  --         mason = false,
+  --         cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
+  --       },
+  --     },
+  --   },
+  -- },
+
+  -- {
+  --   "neovim/nvim-lspconfig",
+  --   dependencies = {
+  --     "williamboman/mason.nvim",
+  --     "williamboman/mason-lspconfig.nvim",
+  --   },
+  --   config = function()
+  --     require('mason').setup()
+  --     local lspconfig = require('lspconfig')
+  --     local capabilities = vim.lsp.protocol.make_client_capabilities()
+  --     local mason_lspconfig = require("mason-lspconfig")
+  --     local servers = {
+  --       ruby_lsp = {
+  --         mason = false,
+  --         cmd = { "~/.asdf/shims/ruby-lsp" },
+  --       },
+  --       ts_ls = {},
+  --     }
+  --
+  --     mason_lspconfig.setup {
+  --       ensure_installed = vim.tbl_keys(servers),
+  --     }
+  --   end
+  -- },
   {
-    "neovim/nvim-lspconfig",
+    "mason-org/mason-lspconfig.nvim",
+    opts = {},
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+        { "mason-org/mason.nvim", opts = {} },
+        "neovim/nvim-lspconfig",
     },
     config = function()
-      require('mason').setup()
-      local lspconfig = require('lspconfig')
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      local mason_lspconfig = require("mason-lspconfig")
-      local servers = {
-        ruby_lsp = {
-          mason = false,
-          cmd = { "~/.asdf/shims/ruby-lsp" },
+      require("mason-lspconfig").setup({
+        opts = {
+          ensure_installed = { "ruby_lsp", "ts_ls" }, -- Add other servers as needed
         },
-        ts_ls = {},
-      }
-
-      mason_lspconfig.setup {
-        ensure_installed = vim.tbl_keys(servers),
-      }
-
-      mason_lspconfig.setup_handlers {
+      })
+      require("mason-lspconfig").setup_handlers({
         function(server_name)
-          require("lspconfig")[server_name].setup {
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = servers[server_name],
-            filetypes = (servers[server_name] or {}).filetypes,
-          }
-        end
-      }
+          require("lspconfig")[server_name].setup({
+            capabilities = vim.lsp.protocol.make_client_capabilities(),
+          })
+        end,
+        ["ruby_lsp"] = function()
+          require("lspconfig").ruby_lsp.setup({
+            cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
+          })
+        end,
+      })
     end
   },
+  -- {
+  --   "mason-org/mason.nvim",
+  --   opts = {}
+  -- },
+
+  -- {
+  --   "mason-org/mason-lspconfig.nvim",
+  --   opts = {},
+  --   dependencies = {
+  --     { "mason-org/mason.nvim", opts = {} },
+  --     "neovim/nvim-lspconfig",
+  --   },
+  -- },
 
   -- Treesitter
   {
@@ -332,7 +405,10 @@ require("lazy").setup({
       "nvim-telescope/telescope.nvim", -- optional
       "ibhagwan/fzf-lua",              -- optional
     },
-    config = true,
+    config = function()
+      -- This is found in the lua directory
+      require 'neogit_config'
+    end,
     keys = {
       {
         "<leader>gg",
@@ -343,6 +419,9 @@ require("lazy").setup({
       },
     },
   },
+
+  -- https://github.com/mrloop/telescope-git-branch.nvim
+  -- { 'mrloop/telescope-git-branch.nvim' },
 
   -- Motion
   {
@@ -448,29 +527,20 @@ require("lazy").setup({
     event = "VeryLazy",
     version = false, -- Never set this value to "*"! Never!
     opts = {
-      -- add any opts here
-      -- for example
-      provider = "ollama",
-      ollama = {
-        -- This modelfile is defined in ~/llm_configs/deep_coder_model
-        -- Uses deepcoder:14b
-        --model = "deep_coder_model",
-        model = "qwen3:30b-a3b",
-        options = {
-          num_ctx = 40960,
-          num_predict = 32768,
-          temperature = 0.1,
+      providers = {
+        --provider = "ollama",
+        ollama = {
+          -- This modelfile is defined in ~/llm_configs/deep_coder_model
+          -- Uses deepcoder:14b
+          --model = "deep_coder_model",
+          model = "qwen3:30b-a3b",
+          extra_request_options = {
+            num_ctx = 40960,
+            num_predict = 32768,
+            temperature = 0.1,
+          },
         },
-      },
-      vendors = {
-        --windows = {
-          --__inherited_from = "openai",
-          --api_key_name = "",
-          --endpoint = "http://192.168.1.31:1234/v1",
-          --model = "gemma-3-27b-it-qat",
-          --disable_tools = true,
-        --},
-      },
+      }
     },
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
     build = "make",
@@ -597,6 +667,22 @@ vim.cmd([[
   augroup END
 ]])
 
+-- require('lspconfig').ruby_lsp.setup{
+--   capabilities = vim.lsp.protocol.make_client_capabilities(),
+-- }
+
+-- require('lspconfig').ruby_lsp.setup({
+--   init_options = {
+--     formatter = 'standard',
+--     linters = { 'standard' },
+--     addonSettings = {
+--       ["Ruby LSP Rails"] = {
+--         enablePendingMigrationsPrompt = false,
+--       },
+--     },
+--   },
+-- })
+
 -- Custom functions
 vim.cmd([[
   function! RipgrepFzf(query, fullscreen)
@@ -633,7 +719,7 @@ vim.keymap.set('n', '<C-j>', '<C-w>j')
 vim.keymap.set('n', '<C-k>', '<C-w>k')
 vim.keymap.set('n', '<C-l>', '<C-w>l')
 
-vim.keymap.set('n', '<Leader>ww', ':q<CR>')
+vim.keymap.set('n', '<Leader>ww', ':bd<CR>')
 
 -- Copy and past
 vim.keymap.set('v', '<Leader>Y', '"*y')
@@ -693,3 +779,7 @@ vim.api.nvim_create_user_command('LoadSession', LoadSession, {})
 vim.keymap.set('v', '<leader>y', '"+y', { noremap = true })
 
 vim.keymap.set('v', '<D-c>', '"+y', { desc = 'Copy visual selection to system clipboard' })
+
+-- Use ripgrep for searching
+vim.opt.grepprg = "rg --vimgrep"
+vim.opt.grepformat = "%f:%l:%c:%m"
