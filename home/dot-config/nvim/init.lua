@@ -681,6 +681,19 @@ vim.api.nvim_create_user_command('Config', function()
   vim.cmd('e ~/.config/nvim/init.lua')
 end, { desc = 'Show all key mappings in a seachable buffer' })
 
+vim.api.nvim_create_user_command('Fmt', function()
+  local filetype = vim.bo.filetype
+  if filetype == 'ruby' or filetype == 'erb' then
+    vim.cmd('!bundle exec rubocop -a %')
+  elseif filetype == 'javascript' or filetype == 'typescript' then
+    vim.cmd('!prettier --write %')
+  elseif filetype == 'css' or filetype == 'scss' then
+    vim.cmd('!prettier --write %')
+  else
+    print('No formatter available for this file type: ' .. filetype)
+  end
+end, { desc = 'Format Ruby, JS, TS, CSS, or SCSS files using their respective formatters' })
+
 -- Window navigation
 vim.keymap.set('n', '<C-h>', '<C-w>h')
 vim.keymap.set('n', '<C-j>', '<C-w>j')
