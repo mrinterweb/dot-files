@@ -189,7 +189,7 @@ require("lazy").setup({
     "neovim/nvim-lspconfig",
     config = function()
       local lspconfig = require('lspconfig')
-      
+
       -- Ruby LSP configuration
       lspconfig.ruby_lsp.setup({
         cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
@@ -203,7 +203,7 @@ require("lazy").setup({
           },
         },
       })
-      
+
       -- TypeScript/JavaScript LSP configuration
       lspconfig.ts_ls.setup({
         capabilities = vim.lsp.protocol.make_client_capabilities(),
@@ -458,13 +458,15 @@ require("lazy").setup({
         },
       })
 
-      vim.keymap.set({ "n", "v" }, "<leader>l", function()
-        require('conform').format({
-          lsp_fallback = true,
-          async = false,
-          timeout_ms = 2000,
-        })
-      end, { desc = "Format file or range (in visual mode)" })
+      vim.keymap.set('n', '<leader>f', function()
+        vim.lsp.buf.format({ async = true })
+      end, { desc = 'Format buffer' })
+      -- vim.keymap.set({ "n", "v" }, "<leader>l", function()
+      --   require('conform').format({
+      --     lsp_fallback = true,
+      --     async = false,
+      --     timeout_ms = 2000,
+      --   })
     end,
   },
   -- Avante
@@ -592,12 +594,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     local bufnr = args.buf
-    
+
     -- Enable completion
     if client.server_capabilities.completionProvider then
       vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
     end
-    
+
     -- Enable hover
     if client.server_capabilities.hoverProvider then
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = bufnr, desc = "LSP Hover" })
@@ -649,6 +651,35 @@ vim.keymap.set('n', '<Leader>[', ':tabprevious<CR>')
 
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = true })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true })
+
+vim.keymap.set("n", "<Leader>cf", function()
+  local filepath = vim.fn.expand("%")
+  vim.fn.setreg("+", filepath)
+end, { desc = "Copy relative path to clipboard" })
+-- Copy to system clipboard
+-- Does not work because the terminal does not pass this through
+-- vim.keymap.set('v', '<D-c>', '"+y<Esc>', { desc = 'Copy to clipboard' })
+-- Paste from system clipboard
+vim.keymap.set({'n', 'i'}, '<D-v>', '<C-r>+', { desc = 'Paste from clipboard' })
+-- Cut to system clipboard
+vim.keymap.set('v', '<D-x>', '"+x', { desc = 'Cut to clipboard' })
+-- Select all
+vim.keymap.set('n', '<D-a>', 'ggVG', { desc = 'Select all' })
+-- Save
+vim.keymap.set('n', '<D-s>', ':w<CR>', { desc = 'Save file' })
+
+vim.api.nvim_create_user_command('Showmap', function(opts)
+  local cmd = opts.args ~= '' and opts.args .. 'map' or 'map'
+  vim.cmd('redir @a | silent ' .. cmd .. ' | redir END | new | put a')
+  vim.bo.readonly = true
+  vim.bo.modifiable = false
+  vim.bo.buftype = 'nofile'  -- Don't treat as a real file
+  vim.bo.bufhidden = 'wipe'  -- Delete buffer when hidden
+end, { nargs = '?', desc = 'Show all key mappings in a seachable buffer' })
+
+vim.api.nvim_create_user_command('Config', function()
+  vim.cmd('e ~/.config/nvim/init.lua')
+end, { desc = 'Show all key mappings in a seachable buffer' })
 
 -- Window navigation
 vim.keymap.set('n', '<C-h>', '<C-w>h')
