@@ -35,9 +35,6 @@ vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('i', 'kj', '<Esc>')
 vim.keymap.set('i', 'kk', '<Esc>:w<CR>')
 
-vim.keymap.set('n', 'K', function()
-  vim.lsp.buf.hover()
-end, { desc = "LSP Hover" })
 vim.o.winborder = 'rounded'
 
 -- Plugin management with lazy.nvim
@@ -188,82 +185,31 @@ require("lazy").setup({
   },
 
   -- LSP and completion
-  -- {
-  --   "neovim/nvim-lspconfig",
-  --   opts = {
-  --     servers = {
-  --       ruby_lsp = {
-  --         mason = false,
-  --         cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
-  --       },
-  --     },
-  --   },
-  -- },
-
-  -- {
-  --   "neovim/nvim-lspconfig",
-  --   dependencies = {
-  --     "williamboman/mason.nvim",
-  --     "williamboman/mason-lspconfig.nvim",
-  --   },
-  --   config = function()
-  --     require('mason').setup()
-  --     local lspconfig = require('lspconfig')
-  --     local capabilities = vim.lsp.protocol.make_client_capabilities()
-  --     local mason_lspconfig = require("mason-lspconfig")
-  --     local servers = {
-  --       ruby_lsp = {
-  --         mason = false,
-  --         cmd = { "~/.asdf/shims/ruby-lsp" },
-  --       },
-  --       ts_ls = {},
-  --     }
-  --
-  --     mason_lspconfig.setup {
-  --       ensure_installed = vim.tbl_keys(servers),
-  --     }
-  --   end
-  -- },
   {
-    "mason-org/mason-lspconfig.nvim",
-    opts = {},
-    dependencies = {
-        { "mason-org/mason.nvim", opts = {} },
-        "neovim/nvim-lspconfig",
-    },
+    "neovim/nvim-lspconfig",
     config = function()
-      require("mason-lspconfig").setup({
-        opts = {
-          ensure_installed = { "ruby_lsp", "ts_ls" }, -- Add other servers as needed
+      local lspconfig = require('lspconfig')
+      
+      -- Ruby LSP configuration
+      lspconfig.ruby_lsp.setup({
+        cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
+        init_options = {
+          formatter = 'standard',
+          linters = { 'standard' },
+          addonSettings = {
+            ["Ruby LSP Rails"] = {
+              enablePendingMigrationsPrompt = false,
+            },
+          },
         },
       })
-      require("mason-lspconfig").setup_handlers({
-        function(server_name)
-          require("lspconfig")[server_name].setup({
-            capabilities = vim.lsp.protocol.make_client_capabilities(),
-          })
-        end,
-        ["ruby_lsp"] = function()
-          require("lspconfig").ruby_lsp.setup({
-            cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
-          })
-        end,
+      
+      -- TypeScript/JavaScript LSP configuration
+      lspconfig.ts_ls.setup({
+        capabilities = vim.lsp.protocol.make_client_capabilities(),
       })
     end
   },
-  -- {
-  --   "mason-org/mason.nvim",
-  --   opts = {}
-  -- },
-
-  -- {
-  --   "mason-org/mason-lspconfig.nvim",
-  --   opts = {},
-  --   dependencies = {
-  --     { "mason-org/mason.nvim", opts = {} },
-  --     "neovim/nvim-lspconfig",
-  --   },
-  -- },
 
   -- Treesitter
   {
@@ -641,17 +587,23 @@ require("lazy").setup({
   },
 })
 
--- Native neovim auto completion
---   This is not as fancy as blink, but a good fallback
---vim.api.nvim_create_autocmd('LspAttach', {
-  --callback = function(ev)
-    --local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    --if client:supports_method('textDocument/completion') then
-      --vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-    --end
-  --end,
---})
-
+-- LSP attach configuration
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    
+    -- Enable completion
+    if client.server_capabilities.completionProvider then
+      vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
+    end
+    
+    -- Enable hover
+    if client.server_capabilities.hoverProvider then
+      vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = bufnr, desc = "LSP Hover" })
+    end
+  end,
+})
 
 -- Additional configurations
 
@@ -667,21 +619,6 @@ vim.cmd([[
   augroup END
 ]])
 
--- require('lspconfig').ruby_lsp.setup{
---   capabilities = vim.lsp.protocol.make_client_capabilities(),
--- }
-
--- require('lspconfig').ruby_lsp.setup({
---   init_options = {
---     formatter = 'standard',
---     linters = { 'standard' },
---     addonSettings = {
---       ["Ruby LSP Rails"] = {
---         enablePendingMigrationsPrompt = false,
---       },
---     },
---   },
--- })
 
 -- Custom functions
 vim.cmd([[
