@@ -185,12 +185,23 @@ require("lazy").setup({
   },
 
   -- LSP and completion
+
+  {
+    "williamboman/mason.nvim",
+    cmd = "Mason",
+    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
+    build = ":MasonUpdate",
+    config = true,
+  },
+
+  -- Your existing LSP configuration with Mason check
   {
     "neovim/nvim-lspconfig",
+    dependencies = { "williamboman/mason.nvim" },
     config = function()
       local lspconfig = require('lspconfig')
 
-      -- Ruby LSP configuration
+      -- Ruby LSP configuration (using ASDF)
       lspconfig.ruby_lsp.setup({
         cmd = { vim.fn.expand("~/.asdf/shims/ruby-lsp") },
         init_options = {
@@ -205,12 +216,24 @@ require("lazy").setup({
       })
 
       -- TypeScript/JavaScript LSP configuration
-      lspconfig.ts_ls.setup({
-        capabilities = vim.lsp.protocol.make_client_capabilities(),
-      })
+      -- Check if typescript-language-server is installed via Mason
+      local ts_ls_cmd = vim.fn.exepath("typescript-language-server")
+      if ts_ls_cmd ~= "" then
+        lspconfig.ts_ls.setup({
+          cmd = { ts_ls_cmd, "--stdio" },
+          capabilities = vim.lsp.protocol.make_client_capabilities(),
+        })
+      else
+        -- Fallback to system installation
+        lspconfig.ts_ls.setup({
+          capabilities = vim.lsp.protocol.make_client_capabilities(),
+        })
+      end
+
+      -- Add other LSP servers as needed
+      -- You can manually install them via :Mason and configure them here
     end
   },
-
   -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
@@ -410,7 +433,7 @@ require("lazy").setup({
         javascriptreact = { "eslint_d" },
         typescriptreact = { "eslint_d" },
         svelte = { "eslint_d" },
-        --ruby = { "rubocop" },
+        ruby = { "rubocop" },
       }
 
       local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
