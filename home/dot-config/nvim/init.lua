@@ -557,6 +557,24 @@ require("lazy").setup({
       }
     end,
   },
+
+  {
+    'nvim-focus/focus.nvim',
+    version = false,
+    config = function()
+      require("focus").setup()
+      vim.keymap.set('n', 'f<C-d>', ':FocusDisable<CR>')
+      vim.keymap.set('n', 'f<C-t>', ':FocusToggle<CR>')
+      vim.keymap.set('n', 'f<C-b>', ':FocusBufferToggle<CR>')
+      vim.keymap.set('n', 'f<C-m>', ':FocusMaxOrEqual<CR>')
+      vim.keymap.set('n', 'f<C-a>', ':FocusAutoresize<CR>')
+      vim.keymap.set('n', '<Leader>/d', ':FocusDisable<CR>', { desc = 'Focus Disable' })
+      vim.keymap.set('n', '<Leader>/t', ':FocusToggle<CR>', { desc = 'Focus Toggle' })
+      vim.keymap.set('n', '<Leader>/b', ':FocusBufferToggle<CR>', { desc = 'Focus Buffer Toggle' })
+      vim.keymap.set('n', '<Leader>/m', ':FocusMaxOrEqual<CR>', { desc = 'Focus Maximize or Equal' })
+      vim.keymap.set('n', '<Leader>/a', ':FocusAutoresize<CR>', { desc = 'Focus Auto Resize' })
+    end,
+  },
 })
 
 -- LSP attach configuration
