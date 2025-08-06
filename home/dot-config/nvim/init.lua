@@ -434,6 +434,7 @@ require("lazy").setup({
         typescriptreact = { "eslint_d" },
         svelte = { "eslint_d" },
         ruby = { "rubocop" },
+        sql = { "sqlfluff" },
       }
 
       local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
@@ -452,7 +453,16 @@ require("lazy").setup({
   },
   {
     "stevearc/conform.nvim",
-    opts = {},
+    opts = {
+      linters = {
+        sqlfluff = {
+          args = {
+            "lint",
+            "--dialect=postgres",
+          },
+        },
+      },
+    },
     event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("conform").setup({
@@ -712,6 +722,8 @@ vim.api.nvim_create_user_command('Fmt', function()
     vim.cmd('!prettier --write %')
   elseif filetype == 'css' or filetype == 'scss' then
     vim.cmd('!prettier --write %')
+  elseif filetype == 'sql' then
+    vim.cmd('!sqlfluff fix % --dialect=postgres')
   else
     print('No formatter available for this file type: ' .. filetype)
   end
