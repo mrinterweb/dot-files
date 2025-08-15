@@ -170,7 +170,6 @@ require("lazy").setup({
 
 
   -- UI enhancements
-  "Valloric/ListToggle",
   {
     "itchyny/lightline.vim",
     config = function()
@@ -568,12 +567,40 @@ require("lazy").setup({
       vim.keymap.set('n', 'f<C-b>', ':FocusBufferToggle<CR>')
       vim.keymap.set('n', 'f<C-m>', ':FocusMaxOrEqual<CR>')
       vim.keymap.set('n', 'f<C-a>', ':FocusAutoresize<CR>')
+      vim.keymap.set('n', 'f<C-e>', ':FocusEqualize<CR>')
       vim.keymap.set('n', '<Leader>/d', ':FocusDisable<CR>', { desc = 'Focus Disable' })
       vim.keymap.set('n', '<Leader>/t', ':FocusToggle<CR>', { desc = 'Focus Toggle' })
       vim.keymap.set('n', '<Leader>/b', ':FocusBufferToggle<CR>', { desc = 'Focus Buffer Toggle' })
       vim.keymap.set('n', '<Leader>/m', ':FocusMaxOrEqual<CR>', { desc = 'Focus Maximize or Equal' })
       vim.keymap.set('n', '<Leader>/a', ':FocusAutoresize<CR>', { desc = 'Focus Auto Resize' })
+      vim.keymap.set('n', '<Leader>/a', ':FocusEqualize<CR>', { desc = 'Focus Equalize' })
     end,
+  },
+
+  {
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    config = true,
+    terminal = { enabled = true },
+    keys = {
+      { "<leader>a", nil, desc = "AI/Claude Code" },
+      { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
+      {
+        "<leader>as",
+        "<cmd>ClaudeCodeTreeAdd<cr>",
+        desc = "Add file",
+        ft = { "NvimTree", "neo-tree", "oil", "minifiles" },
+      },
+      -- Diff management
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+    },
   },
 })
 
@@ -611,18 +638,29 @@ vim.cmd([[
 
 
 -- Custom functions
-vim.cmd([[
-  function! RipgrepFzf(query, fullscreen)
-    let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
-    let initial_command = printf(command_fmt, shellescape(a:query))
-    let reload_command = printf(command_fmt, '{q}')
-    call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
-  endfunction
+local function toggle_quickfix()
+  local windows = vim.fn.getwininfo()
+  for _, win in pairs(windows) do
+    if win["quickfix"] == 1 then
+      vim.cmd.cclose() -- Close the quickfix window
+      return
+    end
+  end
+  -- If quickfix window is not open, check if there are entries in the list
+  if not vim.tbl_isempty(vim.fn.getqflist()) then
+    vim.cmd.copen() -- Open the quickfix window
+  end
+end
 
-  command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
-]])
+vim.keymap.set('n', '<Leader>q', toggle_quickfix, { desc = "Toggle Quickfix Window" })
 
-vim.keymap.set('n', '<Leader>gp', ':RG<cr>')
+vim.keymap.set('n', '<leader>td', function()
+  if vim.diagnostic.is_enabled() then
+    vim.diagnostic.disable()
+  else
+    vim.diagnostic.enable()
+  end
+end, { desc = 'Toggle diagnostics' })
 
 -- Additional key mappings
 vim.keymap.set('n', '<Leader>mt', ':tabnew<CR>')
