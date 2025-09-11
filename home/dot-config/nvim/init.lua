@@ -602,6 +602,45 @@ require("lazy").setup({
       { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
     },
   },
+
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      local harpoon = require("harpoon")
+      harpoon:setup()
+      vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+      vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+      vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
+      vim.keymap.set("n", "<C-t>", function() harpoon:list():select(2) end)
+      vim.keymap.set("n", "<C-n>", function() harpoon:list():select(3) end)
+      vim.keymap.set("n", "<C-s>", function() harpoon:list():select(4) end)
+      -- Toggle previous & next buffers stored within Harpoon list
+      vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+      vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+
+      -- basic telescope configuration
+      -- local conf = require("telescope.config").values
+      -- local function toggle_telescope(harpoon_files)
+      --   local file_paths = {}
+      --   for _, item in ipairs(harpoon_files.items) do
+      --     table.insert(file_paths, item.value)
+      --   end
+      --
+      --   require("telescope.pickers").new({}, {
+      --     prompt_title = "Harpoon",
+      --     finder = require("telescope.finders").new_table({
+      --       results = file_paths,
+      --     }),
+      --     previewer = conf.file_previewer({}),
+      --     sorter = conf.generic_sorter({}),
+      --   }):find()
+      -- end
+
+      -- vim.keymap.set("n", "<C-e>", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
+    end,
+  },
 })
 
 -- LSP attach configuration
@@ -678,6 +717,16 @@ vim.keymap.set('n', '<Leader>[', ':tabprevious<CR>')
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = true })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true })
 
+vim.keymap.set('n', 'vgd', function()
+  vim.cmd('vsplit')
+  vim.lsp.buf.definition()
+end, { desc = "Goto Definition (vertical split)" })
+
+vim.keymap.set('n', 'sgd', function()
+  vim.cmd('split')
+  vim.lsp.buf.definition()
+end, { desc = "Goto Definition (horizontal split)" })
+
 vim.keymap.set("n", "<Leader>cf", function()
   local filepath = vim.fn.expand("%")
   vim.fn.setreg("+", filepath)
@@ -717,6 +766,8 @@ vim.api.nvim_create_user_command('Fmt', function()
     vim.cmd('!prettier --write %')
   elseif filetype == 'sql' then
     vim.cmd('!sqlfluff fix % --dialect=postgres')
+  elseif filetype == 'json' then
+    vim.cmd('%!jq "."')
   else
     print('No formatter available for this file type: ' .. filetype)
   end
@@ -727,6 +778,8 @@ vim.keymap.set('n', '<C-h>', '<C-w>h')
 vim.keymap.set('n', '<C-j>', '<C-w>j')
 vim.keymap.set('n', '<C-k>', '<C-w>k')
 vim.keymap.set('n', '<C-l>', '<C-w>l')
+
+vim.keymap.set('n', '<C-q>', ':q<CR>')
 
 vim.keymap.set('n', '<Leader>ww', ':bd<CR>')
 
