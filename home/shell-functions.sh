@@ -124,6 +124,63 @@ git-create-worktree() {
   echo "Changed directory to: $(pwd)"
 }
 
+git-worktree-create() {
+  # Get branch name from argument or prompt
+  local branch="$1"
+  
+  if [ -z "$branch" ]; then
+    echo "Usage: git-worktree-create <branch-name>"
+    return 1
+  fi
+  
+  # Get the repository name (folder name)
+  local repo=$(basename "$(git rev-parse --show-toplevel)")
+  
+  # Get the parent directory of the current repo
+  local parent_dir=$(dirname "$(git rev-parse --show-toplevel)")
+  
+  # Replace / with __ in branch name for directory
+  local branch_dir=$(echo "$branch" | sed 's/\//__/g')
+  
+  # Create worktree directory path
+  local worktree_dir="${parent_dir}/worktrees_${repo}/${branch_dir}"
+  
+  # Check if worktree already exists
+  if git worktree list | grep -q "$worktree_dir"; then
+    echo "Worktree already exists. Switching to: $worktree_dir"
+    cd "$worktree_dir"
+    return 0
+  fi
+  
+  # Check if branch exists locally
+  if ! git show-ref --verify --quiet "refs/heads/$branch"; then
+    # Branch doesn't exist locally, check if it exists on origin
+    if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+      echo "Branch doesn't exist locally, using origin/$branch"
+      # Create worktree from origin branch
+      if git worktree add "$worktree_dir" "origin/$branch" -b "$branch"; then
+        cd "$worktree_dir"
+        echo "Created worktree from origin/$branch at: $worktree_dir"
+      else
+        echo "Failed to create worktree from origin/$branch"
+        return 1
+      fi
+    else
+      echo "Branch '$branch' not found locally or on origin"
+      return 1
+    fi
+  else
+    # Branch exists locally, create worktree
+    if git worktree add "$worktree_dir" "$branch"; then
+      cd "$worktree_dir"
+      echo "Created worktree at: $worktree_dir"
+    else
+      echo "Failed to create worktree"
+      return 1
+    fi
+  fi
+}
+
 git-worktree-to-main() {
   # Get current branch name
   local branch=$(git branch --show-current)
