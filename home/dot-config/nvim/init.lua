@@ -113,19 +113,9 @@ require("lazy").setup({
       vim.keymap.set('n', '<leader>fd', '<cmd>Telescope lsp_definitions<cr>')
       vim.keymap.set('n', '<leader>f ', '<cmd>Telescope resume<cr>')
       vim.keymap.set('n', '<leader>\'', '<cmd>Telescope telescope-tabs list_tabs<cr>')
+      vim.keymap.set('n', '<leader>k', '<cmd>Telescope keymaps<cr>')
     end
   },
-
-  --{
-    --'LukasPietzschmann/telescope-tabs',
-    --config = function()
-      --require('telescope').load_extension 'telescope-tabs'
-      --require('telescope-tabs').setup {
-        ---- Your custom config :^)
-      --}
-    --end,
-    --dependencies = { 'nvim-telescope/telescope.nvim' },
-  --},
 
   -- Utility plugins
   "majutsushi/tagbar",
@@ -578,32 +568,6 @@ require("lazy").setup({
   },
 
   {
-    "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" },
-    config = true,
-    terminal = { enabled = true },
-    keys = {
-      { "<leader>a", nil, desc = "AI/Claude Code" },
-      { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
-      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
-      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
-      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
-      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
-      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
-      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
-      {
-        "<leader>as",
-        "<cmd>ClaudeCodeTreeAdd<cr>",
-        desc = "Add file",
-        ft = { "NvimTree", "neo-tree", "oil", "minifiles" },
-      },
-      -- Diff management
-      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
-      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
-    },
-  },
-
-  {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -619,26 +583,6 @@ require("lazy").setup({
       -- Toggle previous & next buffers stored within Harpoon list
       vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
       vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
-
-      -- basic telescope configuration
-      -- local conf = require("telescope.config").values
-      -- local function toggle_telescope(harpoon_files)
-      --   local file_paths = {}
-      --   for _, item in ipairs(harpoon_files.items) do
-      --     table.insert(file_paths, item.value)
-      --   end
-      --
-      --   require("telescope.pickers").new({}, {
-      --     prompt_title = "Harpoon",
-      --     finder = require("telescope.finders").new_table({
-      --       results = file_paths,
-      --     }),
-      --     previewer = conf.file_previewer({}),
-      --     sorter = conf.generic_sorter({}),
-      --   }):find()
-      -- end
-
-      -- vim.keymap.set("n", "<C-e>", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
     end,
   },
 })
@@ -760,7 +704,7 @@ vim.api.nvim_create_user_command('Fmt', function()
   local filetype = vim.bo.filetype
   if filetype == 'ruby' or filetype == 'erb' then
     vim.cmd('!bundle exec rubocop -a %')
-  elseif filetype == 'javascript' or filetype == 'typescript' then
+  elseif filetype == 'javascript' or filetype == 'typescript' or filetype == 'typescriptreact' then
     vim.cmd('!prettier --write %')
   elseif filetype == 'css' or filetype == 'scss' then
     vim.cmd('!prettier --write %')
@@ -779,9 +723,9 @@ vim.keymap.set('n', '<C-j>', '<C-w>j')
 vim.keymap.set('n', '<C-k>', '<C-w>k')
 vim.keymap.set('n', '<C-l>', '<C-w>l')
 
-vim.keymap.set('n', '<C-q>', ':q<CR>')
-
-vim.keymap.set('n', '<Leader>ww', ':bd<CR>')
+vim.keymap.set('n', '<C-q>', ':bd<CR>')
+vim.keymap.set('n', '<Leader>ww', ':q<CR>')
+vim.keymap.set('n', '<Leader>qq', ':bd<CR>')
 
 -- Copy and past
 vim.keymap.set('v', '<Leader>Y', '"*y')
