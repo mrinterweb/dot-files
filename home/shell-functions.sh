@@ -316,3 +316,14 @@ run-rubocop-for-branch() {
   echo "$files"
   echo "$files" | xargs bundle exec rubocop -A
 }
+
+claude-directory-search() {
+  local query="$1"
+  if [ -z "$query" ]; then
+    echo "Usage: claude-directory-search <query>"
+    return 1
+  fi
+
+  dir="$(rg "$query" ~/.claude/**/*.jsonl --no-filename | head -1 | jq -r '.cwd')"
+  echo "Found directory: \n$dir"
+}
