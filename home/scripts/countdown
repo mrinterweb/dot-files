@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: countdown <time> [message]"
+  echo "  time: e.g. 30s, 5m, 2h"
+  exit 1
+fi
+
+TIME_ARG="$1"
+MESSAGE="${2:-Timer done!}"
+
+# Parse time argument
+VALUE="${TIME_ARG%[smh]}"
+UNIT="${TIME_ARG: -1}"
+
+case "$UNIT" in
+  s) SECONDS_TOTAL=$VALUE ;;
+  m) SECONDS_TOTAL=$((VALUE * 60)) ;;
+  h) SECONDS_TOTAL=$((VALUE * 3600)) ;;
+  *)
+    echo "Unknown time unit '$UNIT'. Use s, m, or h."
+    exit 1
+    ;;
+esac
+
+# Run timer in background
+(
+  sleep "$SECONDS_TOTAL"
+  osascript -e "display alert \"🕐 Countdown\" message \"$MESSAGE\""
+  say "$MESSAGE"
+) &
+
+echo "⏱  Timer set for $TIME_ARG — \"$MESSAGE\" (PID $!)"
+
